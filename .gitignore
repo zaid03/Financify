@@ -1,0 +1,36 @@
+# Gradle
+.gradle/
+build/
+out/
+
+# Wrapper (keep wrapper, ignore cache junk)
+!gradle-wrapper.jar
+.gradle/
+
+# IntelliJ / VS Code
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Java
+*.class
+
+# Config / local env (important)
+*.properties
+!gradle-wrapper.properties
+
+# Sensitive / local files
+application.properties
+application.yml
+*.env
+
+# JavaFX / build artifacts
+bin/
+target/
