@@ -2,8 +2,15 @@ package com.financify;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.time.LocalDate;
+
+import com.financify.models.Transactions;
 
 public class Database {
     private static final String URL = "jdbc:sqlite:financify.db";
@@ -52,6 +59,41 @@ public class Database {
             stmt.execute(goals_section);
         } catch (SQLException e) {
             throw new RuntimeException("Table created failed", e);
+        }
+    }
+
+    public static List<Transactions> getAllTransactions() {
+        LocalDate now = LocalDate.now();
+        LocalDate firstDay = now.withDayOfMonth(1);
+        LocalDate firstDayNextMonth = firstDay.plusMonths(1);
+
+        String fetchTransactions = """
+            SELECT * FROM transactions WHERE date >= ? AND date < ?
+        """;
+        
+        List<Transactions> transactions = new ArrayList<>();
+        try (Connection conn = connect(); PreparedStatement stmt = conn.prepareStatement(fetchTransactions)) {
+            stmt.setString(1, firstDay.toString());
+            stmt.setString(2, firstDayNextMonth.toString());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String date = rs.getString("date");
+                String type = rs.getString("type");
+                String category = rs.getString("category");
+                String description = rs.getString("description");
+                double amount = rs.getDouble("amount");
+                Transactions transaction = new Transactions(
+                    date,
+                    type,
+                    category,
+                    description,
+                    amount
+                );
+                transactions.add(transaction);
+            }
+            return transactions;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch transactions", e);
         }
     }
 }

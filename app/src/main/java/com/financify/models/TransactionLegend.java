@@ -9,11 +9,6 @@ public class TransactionLegend {
         this.category = category;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public String getCategory() {
-        return category;
-    }
+    public String getType() {return type;}
+    public String getCategory() {return category;}
 }

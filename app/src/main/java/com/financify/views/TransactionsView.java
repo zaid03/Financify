@@ -1,10 +1,15 @@
 package com.financify.views;
 
+import java.util.List;
+
+import com.financify.Database;
 import com.financify.models.TransactionLegend;
+import com.financify.models.Transactions;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -12,9 +17,9 @@ import javafx.scene.layout.VBox;
 
 public class TransactionsView extends VBox{
     public TransactionsView() {
-        setSpacing(20);
-        setPadding(new Insets(20));
-        setAlignment(Pos.TOP_CENTER);
+        VBox content = new VBox(20);
+        content.setPadding(new Insets(20));
+        content.setAlignment(Pos.TOP_CENTER);
 
         Label title = new Label("Transactions");
         Label legend = new Label("Legend");
@@ -28,12 +33,17 @@ public class TransactionsView extends VBox{
         title.setStyle(title_styles);
         legend.setStyle(title_styles);
 
-        TableView<Object> transaction_table = new TableView<>();
-        TableColumn<Object, String> dateColumn = new TableColumn<>("Date");
-        TableColumn<Object, String> typeColumn = new TableColumn<>("Type");
-        TableColumn<Object, String> categoryColumn = new TableColumn<>("Category");
-        TableColumn<Object, String> descriptionColumn = new TableColumn<>("Description");
-        TableColumn<Object, Double> amountColumn = new TableColumn<>("Amount");
+        TableView<Transactions> transaction_table = new TableView<>();
+        TableColumn<Transactions, String> dateColumn = new TableColumn<>("Date");
+        TableColumn<Transactions, String> typeColumn = new TableColumn<>("Type");
+        TableColumn<Transactions, String> categoryColumn = new TableColumn<>("Category");
+        TableColumn<Transactions, String> descriptionColumn = new TableColumn<>("Description");
+        TableColumn<Transactions, Double> amountColumn = new TableColumn<>("Amount");
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
+        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+        descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
+        amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         transaction_table.getColumns().addAll(
             dateColumn,
             typeColumn,
@@ -41,6 +51,10 @@ public class TransactionsView extends VBox{
             descriptionColumn,
             amountColumn
         );
+        List<Transactions> transactions = Database.getAllTransactions();
+        transaction_table.getItems().addAll(transactions);
+        transaction_table.setMinHeight(500);
+
         String table_style = """
             -fx-background-color: white;
             -fx-border-color: #D1D5DB;
@@ -75,11 +89,14 @@ public class TransactionsView extends VBox{
         legendTypeColumn.setPrefWidth(120);
         legendCategoryColumn.setPrefWidth(180);
 
-        getChildren().addAll(
+        content.getChildren().addAll(
             title,
             transaction_table,
             legend,
             TransactionLegend_table
         );
+        ScrollPane scrollPane = new ScrollPane(content);
+        scrollPane.setFitToWidth(true);
+        getChildren().add(scrollPane);
     }
 }
