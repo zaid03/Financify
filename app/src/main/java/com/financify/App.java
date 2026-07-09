@@ -16,7 +16,7 @@ public class App extends Application {
 
         BorderPane root = new BorderPane();
 
-        root.setLeft(new Sidebar());
+        root.setLeft(new Sidebar(root));
         root.setCenter(new Label("Dashboard"));
 
         Scene scene = new Scene(root, 1366, 768);

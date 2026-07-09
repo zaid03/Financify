@@ -34,3 +34,7 @@ application.yml
 # JavaFX / build artifacts
 bin/
 target/
+
+
+#db
+app/financify.db
