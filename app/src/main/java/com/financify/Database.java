@@ -82,7 +82,8 @@ public class Database {
         String fetchTransactions = """
             SELECT SUM(amount) AS total_spent
             FROM transactions
-            WHERE date >= ? AND date < ?
+            WHERE type = 'Expense' And
+            date >= ? AND date < ?
         """;
 
         try (Connection conn = connect();
@@ -145,6 +146,7 @@ public class Database {
 
             while (rs.next()) {
                 transactions.add(new Transactions(
+                    rs.getInt("id"),
                     rs.getString("date"),
                     rs.getString("type"),
                     rs.getString("category"),
@@ -157,6 +159,46 @@ public class Database {
 
         } catch (SQLException e) {
             throw new RuntimeException("Can't fetch transactions", e);
+        }
+    }
+
+    //adding a transaction
+    public static void addTransaction(String date, String type, String category, String description, Double amount) {
+        String transaction = """
+            INSERT INTO transactions (date, type, category, description, amount) VALUES (?, ?, ?, ?, ?)
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(transaction)) {
+                stmt.setString(1, date);
+                stmt.setString(2, type);
+                stmt.setString(3, category);
+                stmt.setString(4, description);
+                stmt.setDouble(5, amount);
+                stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't add transaction", e);
+        }
+    }
+
+    //updating an existing transaction
+    public static void updateTransaction(Integer id, String date, String type, String category, String description, Double amount) {
+        String updateTrans = """
+            UPDATE transactions SET
+            date = ?, type = ?, category = ?, description = ?, amount = ? 
+            WHERE id = ?
+        """;
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(updateTrans)){
+                stmt.setString(1, date);
+                stmt.setString(2, type);
+                stmt.setString(3, category);
+                stmt.setString(4, description);
+                stmt.setDouble(5, amount);
+                stmt.setInt(6, id);
+                stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't update transaction", e);
         }
     }
 }
