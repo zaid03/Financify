@@ -1,5 +1,6 @@
 package com.financify.views;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.financify.Database;
@@ -8,16 +9,18 @@ import com.financify.models.Transactions;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class TransactionsView extends VBox{
     public TransactionsView() {
-        VBox content = new VBox(20);
+        VBox content = new VBox(15);
         content.setPadding(new Insets(20));
         content.setAlignment(Pos.TOP_CENTER);
 
@@ -32,6 +35,21 @@ public class TransactionsView extends VBox{
 
         title.setStyle(title_styles);
         legend.setStyle(title_styles);
+
+        Label filter = new Label("Change the date to display its transactions");
+
+        ComboBox<Integer> monthComboBox = new ComboBox<>();
+        ComboBox<Integer> yearComboBox = new ComboBox<>();
+        for (int i = 1; i <= 12; i++) {
+            monthComboBox.getItems().add(i);
+        }
+        yearComboBox.getItems().addAll(Database.getAllYearsFilter());
+
+        monthComboBox.setValue(LocalDate.now().getMonthValue());
+        yearComboBox.setValue(LocalDate.now().getYear());
+        HBox filters = new HBox(10);
+        filters.getChildren().addAll(filter, monthComboBox, yearComboBox);
+        filters.setAlignment(Pos.CENTER);
 
         TableView<Transactions> transaction_table = new TableView<>();
         TableColumn<Transactions, String> dateColumn = new TableColumn<>("Date");
@@ -64,6 +82,19 @@ public class TransactionsView extends VBox{
         transaction_table.setStyle(table_style);
         transaction_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
+        double total_spent = Database.getTotalSpent();
+        Label amount = new Label("Amount spent this month :" + total_spent + "MAD");
+        
+        Runnable refrechTable = () -> {
+            transaction_table.getItems().setAll(
+                Database.getSomeTransactions(yearComboBox.getValue(), monthComboBox.getValue())
+            );
+            double totalSpent = Database.getTotalSpent(yearComboBox.getValue(), monthComboBox.getValue());
+            amount.setText("Amount spent this month: " + totalSpent + " MAD");
+        };
+        monthComboBox.setOnAction(e -> refrechTable.run());
+        yearComboBox.setOnAction(e -> refrechTable.run());
+
         TableView<TransactionLegend> TransactionLegend_table = new TableView<>();
         TableColumn<TransactionLegend, String> legendTypeColumn = new TableColumn<>("Type");
         TableColumn<TransactionLegend, String> legendCategoryColumn = new TableColumn<>("Category");
@@ -89,9 +120,20 @@ public class TransactionsView extends VBox{
         legendTypeColumn.setPrefWidth(120);
         legendCategoryColumn.setPrefWidth(180);
 
+        String words_styles = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #000000;
+        """;
+
+        amount.setStyle(words_styles);
+
         content.getChildren().addAll(
             title,
+            filter,
+            filters,
             transaction_table,
+            amount,
             legend,
             TransactionLegend_table
         );
