@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.financify.Database;
-import com.financify.models.TransactionLegend;
 import com.financify.models.Transactions;
 
 import javafx.geometry.Insets;
@@ -32,16 +31,13 @@ public class TransactionsView extends VBox{
         content.setAlignment(Pos.TOP_CENTER);
 
         Label title = new Label("Transactions");
-        Label legend = new Label("Legend");
 
         String title_styles = """
             -fx-font-size: 28px;
             -fx-font-weight: bold;
             -fx-text-fill: #6a726a;
         """;
-
         title.setStyle(title_styles);
-        legend.setStyle(title_styles);
 
         Label filter = new Label("Change the date to display its transactions");
 
@@ -63,6 +59,7 @@ public class TransactionsView extends VBox{
             -fx-background-radius: 4;
         """;
         add_button.setStyle(btn_styles);
+        add_button.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
 
         HBox filters = new HBox(10);
         filters.setAlignment(Pos.CENTER);
@@ -115,31 +112,6 @@ public class TransactionsView extends VBox{
         };
         monthComboBox.setOnAction(e -> refrechTable.run());
         yearComboBox.setOnAction(e -> refrechTable.run());
-
-        TableView<TransactionLegend> TransactionLegend_table = new TableView<>();
-        TableColumn<TransactionLegend, String> legendTypeColumn = new TableColumn<>("Type");
-        TableColumn<TransactionLegend, String> legendCategoryColumn = new TableColumn<>("Category");
-        legendTypeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
-        legendCategoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
-        TransactionLegend_table.getColumns().addAll(
-            legendTypeColumn,
-            legendCategoryColumn
-        );
-        TransactionLegend_table.getItems().addAll(
-            new TransactionLegend("Income", "Salary"),
-            new TransactionLegend("Expense", "Food"),
-            new TransactionLegend("Expense", "Transport"),
-            new TransactionLegend("Expense", "Internet"),
-            new TransactionLegend("Expense", "Going out"),
-            new TransactionLegend("Expense", "Shopping"),
-            new TransactionLegend("Expense", "Entertainment"),
-            new TransactionLegend("Expense", "Bills"),
-            new TransactionLegend("Expense", "Other")
-        );
-        TransactionLegend_table.setStyle(table_style);
-        TransactionLegend_table.setMaxWidth(304);
-        legendTypeColumn.setPrefWidth(120);
-        legendCategoryColumn.setPrefWidth(180);
 
         String words_styles = """
             -fx-font-size: 16px;
@@ -201,6 +173,7 @@ public class TransactionsView extends VBox{
 
             Button addTransaction = new Button("Add");
             addTransaction.setStyle(btn_styles);
+            add_button.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
             addTransaction.setAlignment(Pos.CENTER);
             add_transaction_grid.add(addTransaction, 1, 5);
 
@@ -220,7 +193,108 @@ public class TransactionsView extends VBox{
 
                 refrechTable.run();
                 stage.close();
+
+                add_Date.setValue(null);
+                categoryCombo.getSelectionModel().clearSelection();
+                categoryCombo.getItems().clear();
+                typeCombo.getSelectionModel().clearSelection();
+                typeCombo.getItems().clear();
+                description.clear();
+                amount_add.clear();
             });
+        });
+
+        //update a transaction grid
+        DatePicker update_Date = new DatePicker();
+        ComboBox<String> typeComboUpdate = new ComboBox<>();
+        ComboBox<String> categoryComboUpdate = new ComboBox<>();
+        typeComboUpdate.getItems().addAll(
+            "Income",
+            "Expense"
+        );
+        typeComboUpdate.setOnAction(e -> {
+            categoryComboUpdate.getItems().clear();
+
+            if (typeComboUpdate.getValue().equals("Income")) {
+                categoryComboUpdate.getItems().add("Salary");
+            } else {
+                categoryComboUpdate.getItems().addAll(
+                    "Food",
+                    "Transport",
+                    "Internet",
+                    "Going out",
+                    "Shopping",
+                    "Entertainment",
+                    "Bills",
+                    "Other"
+                );
+            }
+        });
+        TextField descriptionUpdate = new TextField();
+        TextField amount_update = new TextField();
+
+        transaction_table.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                Transactions selected = transaction_table.getSelectionModel().getSelectedItem();
+
+                if (selected != null) {
+                    update_Date.setValue(LocalDate.parse(selected.getDate()));
+                    typeComboUpdate.setValue(selected.getType());
+                    categoryComboUpdate.setValue(selected.getCategory());
+                    descriptionUpdate.setText(selected.getDescription());
+                    amount_update.setText(selected.getAmount().toString());
+
+                    GridPane update_transaction_grid = new GridPane();
+                    update_transaction_grid.setHgap(10);
+                    update_transaction_grid.setVgap(10);
+                    update_transaction_grid.setPadding(new Insets(20));
+
+                    update_transaction_grid.add(new Label("Date: "), 0, 0);
+                    update_transaction_grid.add(update_Date, 1, 0);
+
+                    update_transaction_grid.add(new Label("Type: "), 0,1);
+                    update_transaction_grid.add(typeComboUpdate, 1, 1);
+
+                    update_transaction_grid.add(new Label("Category: "), 0, 2);
+                    update_transaction_grid.add(categoryComboUpdate, 1, 2);
+
+                    update_transaction_grid.add(new Label("Description: "), 0, 3);
+                    update_transaction_grid.add(descriptionUpdate, 1, 3);
+
+                    update_transaction_grid.add(new Label("Amount: "), 0, 4);
+                    update_transaction_grid.add(amount_update, 1, 4);
+
+                    Button updateButton = new Button("Update");
+                    updateButton.setStyle(btn_styles);
+                    updateButton.setStyle("-fx-background-color: #1f4037; -fx-text-fill: white;");
+                    Button deleteButton = new Button("Delete");
+                    deleteButton.setStyle(btn_styles);
+                    deleteButton.setStyle("-fx-background-color: #D70652; -fx-text-fill: white;");
+                    HBox butt_update = new HBox(10);
+                    butt_update.setAlignment(Pos.CENTER);
+                    butt_update.getChildren().addAll(updateButton, deleteButton);
+                    update_transaction_grid.add(butt_update, 1, 5);
+
+                    Stage stage = new Stage();
+                    stage.setTitle("Update Transaction");
+                    stage.setScene(new Scene(update_transaction_grid, 400, 280));
+                    stage.show();
+
+                    updateButton.setOnAction(f -> {
+                        Database.updateTransaction(
+                            selected.getId(),
+                            update_Date.getValue().toString(),
+                            typeComboUpdate.getValue(),
+                            categoryComboUpdate.getValue(),
+                            descriptionUpdate.getText(),
+                            Double.parseDouble(amount_update.getText())
+                        );
+
+                        refrechTable.run();
+                        stage.close();
+                    });
+                }
+            }
         });
 
         content.getChildren().addAll(
@@ -228,9 +302,7 @@ public class TransactionsView extends VBox{
             filter,
             topBar,
             transaction_table,
-            amount,
-            legend,
-            TransactionLegend_table
+            amount
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
