@@ -17,6 +17,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -80,6 +81,17 @@ public class TransactionsView extends VBox{
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        amountColumn.setCellFactory(column -> new TableCell<>() {
+        @Override
+        protected void updateItem(Double amount, boolean empty) {
+            super.updateItem(amount, empty);
+                if (empty || amount == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f MAD", amount));
+                }
+            }
+        });
         transaction_table.getColumns().addAll(
             dateColumn,
             typeColumn,
@@ -132,7 +144,7 @@ public class TransactionsView extends VBox{
         typeCombo.setOnAction(e -> {
             categoryCombo.getItems().clear();
 
-            if (typeCombo.getValue().equals("Income")) {
+            if ("Income".equals(typeCombo.getValue())) {
                 categoryCombo.getItems().add("Salary");
             } else {
                 categoryCombo.getItems().addAll(
@@ -198,7 +210,6 @@ public class TransactionsView extends VBox{
                 categoryCombo.getSelectionModel().clearSelection();
                 categoryCombo.getItems().clear();
                 typeCombo.getSelectionModel().clearSelection();
-                typeCombo.getItems().clear();
                 description.clear();
                 amount_add.clear();
             });
@@ -209,13 +220,13 @@ public class TransactionsView extends VBox{
         ComboBox<String> typeComboUpdate = new ComboBox<>();
         ComboBox<String> categoryComboUpdate = new ComboBox<>();
         typeComboUpdate.getItems().addAll(
-            "Income",
-            "Expense"
-        );
-        typeComboUpdate.setOnAction(e -> {
+                    "Income",
+                    "Expense"
+                );
+            Runnable loadCategories = () -> {
             categoryComboUpdate.getItems().clear();
 
-            if (typeComboUpdate.getValue().equals("Income")) {
+            if ("Income".equals(typeComboUpdate.getValue())) {
                 categoryComboUpdate.getItems().add("Salary");
             } else {
                 categoryComboUpdate.getItems().addAll(
@@ -229,7 +240,8 @@ public class TransactionsView extends VBox{
                     "Other"
                 );
             }
-        });
+        };
+        typeComboUpdate.setOnAction(e -> loadCategories.run());
         TextField descriptionUpdate = new TextField();
         TextField amount_update = new TextField();
 
@@ -240,6 +252,7 @@ public class TransactionsView extends VBox{
                 if (selected != null) {
                     update_Date.setValue(LocalDate.parse(selected.getDate()));
                     typeComboUpdate.setValue(selected.getType());
+                    loadCategories.run(); 
                     categoryComboUpdate.setValue(selected.getCategory());
                     descriptionUpdate.setText(selected.getDescription());
                     amount_update.setText(selected.getAmount().toString());
@@ -292,6 +305,32 @@ public class TransactionsView extends VBox{
 
                         refrechTable.run();
                         stage.close();
+                    });
+
+                    deleteButton.setOnAction(d -> {
+
+                        Label deleteMessage = new Label("This transaction will be deleted");
+                        Button dell_btn = new Button("Delete");
+                        dell_btn.setStyle(btn_styles);
+                        dell_btn.setStyle("-fx-background-color: #D70652; -fx-text-fill: white;");
+
+                        VBox delete_grid = new VBox(10);
+                        delete_grid.setAlignment(Pos.CENTER);
+                        delete_grid.getChildren().addAll(deleteMessage, dell_btn);
+
+                        Stage stageDelete = new Stage();
+                        stageDelete.setTitle("Delete Transaction");
+                        stageDelete.setScene(new Scene(delete_grid, 400, 100));
+                        stageDelete.show();
+
+                        dell_btn.setOnAction(a -> {
+                            Database.deleteTrasnaction(
+                                selected.getId()
+                            );
+                            refrechTable.run();
+                            stageDelete.close();
+                            stage.close();
+                        });
                     });
                 }
             }

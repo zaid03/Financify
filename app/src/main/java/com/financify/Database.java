@@ -201,4 +201,18 @@ public class Database {
             throw new RuntimeException("Can't update transaction", e);
         }
     }
+
+    //deleting a transaction
+    public static void deleteTrasnaction(Integer id) {
+        String deleteTras = """
+            DELETE FROM transactions WHERE id = ?
+        """;
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(deleteTras)) {
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't delete transaction", e);
+        }
+    }
 }
