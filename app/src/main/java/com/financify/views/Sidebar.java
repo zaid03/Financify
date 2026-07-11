@@ -41,8 +41,8 @@ public class Sidebar extends VBox {
         getChildren().addAll(
             dashboardBtn,
             transactionsBtn,
-            goalsBtn,
-            netWorthBtn
+            netWorthBtn,
+            goalsBtn
         );
 
         dashboardBtn.setOnAction(e -> {

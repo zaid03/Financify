@@ -129,6 +129,82 @@ public class NetWorthView extends VBox{
             netWorth_table.getItems().setAll(Database.getSomeNetWorth(yearComboBox.getValue()));
         });
 
+        //adding a networth functions
+        ComboBox month = new ComboBox<>();
+        for (int i = 1; i <= 12; i++) {
+            month.getItems().add(i);
+        }
+        ComboBox year = new ComboBox<>();
+        year.getItems().addAll(
+            2026,
+            2027,
+            2028,
+            2029,
+            2030,
+            2031,
+            2032,
+            2033,
+            2034,
+            2035
+        );
+        TextField bankBalance = new TextField();
+        TextField loans = new TextField();
+        add_button.setOnAction(f -> {
+            GridPane add_net_worth_grid = new GridPane();
+            add_net_worth_grid.setHgap(10);
+            add_net_worth_grid.setVgap(10);
+            add_net_worth_grid.setPadding(new Insets(20));
+
+            add_net_worth_grid.add(new Label("Month"), 0, 0);
+
+            HBox yearMonth = new HBox();
+            yearMonth.setAlignment(Pos.CENTER);
+            yearMonth.getChildren().addAll(month, year);
+            yearMonth.setSpacing(10);
+            add_net_worth_grid.add(yearMonth, 1, 0);
+
+            add_net_worth_grid.add(new Label("Bank balance"), 0, 1);
+            add_net_worth_grid.add(bankBalance, 1, 1);
+
+            add_net_worth_grid.add(new Label("Loan (Optional)"), 0, 2);
+            add_net_worth_grid.add(loans, 1, 2);
+            
+            Button addTransaction = new Button("Add");
+            addTransaction.setStyle(btn_styles);
+            add_button.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
+            addTransaction.setAlignment(Pos.CENTER);
+            add_net_worth_grid.add(addTransaction, 1, 5);
+
+            Stage stage = new Stage();
+            stage.setTitle("Add Transaction");
+            stage.setScene(new Scene(add_net_worth_grid, 400, 200));
+            stage.show();
+
+            addTransaction.setOnAction(e -> {
+                String MonthToSend = String.format("%d-%02d", year.getValue(), month.getValue());
+                Integer loanValue = null;
+                if (loans.getText().isBlank()) {
+                    loanValue = null;
+                } else {
+                    Integer.parseInt(loans.getText());
+                }
+                Database.postNetWorth (
+                    MonthToSend,
+                    Double.parseDouble(bankBalance.getText()),
+                    loanValue
+                );
+
+                month.getSelectionModel().clearSelection();
+                year.getSelectionModel().clearSelection();
+                bankBalance.clear();
+                loans.clear();
+                netWorth_table.getItems().setAll(Database.getNetWorth());
+                yearComboBox.getItems().setAll(Database.getAllYearsToFilter());
+                yearComboBox.setValue(LocalDate.now().getYear());
+                stage.close();
+            });
+        });
+
         content.getChildren().addAll(
             title,
             filter,

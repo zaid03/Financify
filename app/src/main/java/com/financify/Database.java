@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -269,6 +270,27 @@ public class Database {
             return yearsToFilter;
         } catch (SQLException e) {
             throw new RuntimeException("Can't fetch years to add to filter of net worth", e);
+        }
+    }
+
+    //adding monthly net worth
+    public static void postNetWorth(String month, Double bank_balance, Integer loans) {
+        String add_netWorth = """
+            insert into net_worth (month, bank_balance, loans) values (?, ?, ?)
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(add_netWorth)){
+            stmt.setString(1, month);
+            stmt.setDouble(2, bank_balance);
+            if (loans == null) {
+                stmt.setNull(3, Types.INTEGER);
+            } else {
+                stmt.setInt(3, loans);
+            }
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't add to net worth", e);
         }
     }
 }
