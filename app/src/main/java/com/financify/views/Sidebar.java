@@ -55,7 +55,7 @@ public class Sidebar extends VBox {
             root.setCenter(new Label("goals"));
         });
         netWorthBtn.setOnAction(e -> {
-            root.setCenter(new Label("net Worth"));
+            root.setCenter(new NetWorthView());
         });
     }
 }

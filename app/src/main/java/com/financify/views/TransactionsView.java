@@ -203,8 +203,13 @@ public class TransactionsView extends VBox{
                     Double.parseDouble(amount_add.getText())
                 );
 
+                yearComboBox.setOnAction(null);
+
                 yearComboBox.getItems().setAll(Database.getAllYearsFilter());
                 yearComboBox.setValue(LocalDate.now().getYear());
+
+                yearComboBox.setOnAction(p -> refrechTable.run());
+
                 refrechTable.run();
                 stage.close();
 
@@ -215,6 +220,7 @@ public class TransactionsView extends VBox{
                 description.clear();
                 amount_add.clear();
             });
+
         });
 
         //update a transaction grid

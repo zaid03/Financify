@@ -31,6 +31,42 @@ public class NetWorthView extends VBox{
         content.setPadding(new Insets(20));
         content.setAlignment(Pos.TOP_CENTER);
 
+        Label title = new Label("Net worth");
+        String title_styles = """
+            -fx-font-size: 28px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #6a726a;
+        """;
+        title.setStyle(title_styles);
+        Label filter = new Label("Change the year to display its net tracking history");
+
+        ComboBox<Integer> yearComboBox = new ComboBox<>();
+        yearComboBox.getItems().addAll(Database.getAllYearsToFilter());
+        yearComboBox.setValue(LocalDate.now().getYear());
+        Button add_button = new Button("Add Date");
+        String btn_styles = """
+            -fx-background-color: #abbaab;
+            -fx-text-fill: #000000;
+            -fx-font-size: 12px;
+            -fx-padding: 4 8;
+            -fx-background-radius: 4;
+        """;
+        add_button.setStyle(btn_styles);
+        add_button.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
+
+        HBox filters = new HBox(10);
+        filters.setAlignment(Pos.CENTER);
+        filters.getChildren().addAll(add_button, yearComboBox);
+        BorderPane topBar = new BorderPane();
+        topBar.setLeft(add_button);
+        topBar.setCenter(filters);
+
+        content.getChildren().addAll(
+            title,
+            filter,
+            topBar
+            
+        );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
         getChildren().add(scrollPane);

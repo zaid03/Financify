@@ -1,0 +1,151 @@
+# Financify
+
+A modern desktop personal finance application built with **JavaFX** and **SQLite**.
+
+Financify is a personal project created to learn JavaFX by building a complete desktop application from the ground up. The focus is on writing clean, maintainable code while exploring desktop UI development, database integration, and application architecture.
+
+---
+
+## Features
+
+### 📊 Dashboard
+
+* Financial overview
+* Savings statistics
+* Monthly expense summary
+* Quick access to important information
+
+### 💳 Transactions
+
+* Add income and expenses
+* Edit existing transactions
+* Delete transactions with confirmation
+* Monthly and yearly filtering
+* Total monthly expenses
+* Category-based organization
+
+### 📈 Net Worth
+
+* Record monthly net worth
+* View yearly net worth history
+* Filter records by year
+
+### 🎯 Goals *(In Progress)*
+
+* Savings goals
+* Progress tracking
+* Goal management
+
+---
+
+## Technologies
+
+* Java 21
+* JavaFX 21
+* Gradle
+* SQLite
+
+---
+
+## Project Structure
+
+```
+src/
+└── main/
+    └── java/
+        └── com/
+            └── financify/
+                ├── App.java
+                ├── Database.java
+                ├── models/
+                │   ├── Transactions.java
+                │   ├── NetWorthModel.java
+                │   └── TransactionLegend.java
+                └── views/
+                    ├── Sidebar.java
+                    ├── DashboardView.java
+                    ├── TransactionsView.java
+                    ├── GoalsView.java
+                    └── NetWorthView.java
+```
+
+---
+
+## Screenshots
+
+*Screenshots will be added as the project develops.*
+
+---
+
+## Running the Project
+
+### Clone the repository
+
+```bash
+git clone https://github.com/your-username/Financify.git
+```
+
+### Open the project
+
+Open the project in your preferred Java IDE (VS Code, IntelliJ IDEA, etc.).
+
+### Requirements
+
+* Java 21 or newer
+* Gradle (or use the included Gradle Wrapper)
+
+### Run
+
+```bash
+./gradlew run
+```
+
+---
+
+## Current Status
+
+### ✅ Completed
+
+* Sidebar navigation
+* Dashboard layout
+* Transactions CRUD
+* Monthly expense calculation
+* Month and year filtering
+* SQLite database integration
+* Net Worth history with yearly filtering
+
+### 🚧 In Progress
+
+* Goals module
+* Dashboard improvements
+* Additional statistics and charts
+* UI polishing
+
+---
+
+## Design
+
+* Clean and minimal interface
+* Light theme
+* JavaFX UI built entirely in Java
+* Styling performed with `setStyle()` (no external CSS)
+
+---
+
+## Learning Objectives
+
+This project is primarily intended to improve understanding of:
+
+* JavaFX
+* Desktop application architecture
+* SQLite databases
+* Java collections
+* MVC-inspired project organization
+* Clean code practices
+* Gradle project management
+
+---
+
+## License
+
+This project is available under the MIT License.
