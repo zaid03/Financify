@@ -203,6 +203,8 @@ public class TransactionsView extends VBox{
                     Double.parseDouble(amount_add.getText())
                 );
 
+                yearComboBox.getItems().setAll(Database.getAllYearsFilter());
+                yearComboBox.setValue(LocalDate.now().getYear());
                 refrechTable.run();
                 stage.close();
 

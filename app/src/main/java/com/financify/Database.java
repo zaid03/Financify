@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.financify.models.Transactions;
+import com.financify.models.NetWorthModel;
 
 public class Database {
     private static final String URL = "jdbc:sqlite:financify.db";
@@ -213,6 +214,61 @@ public class Database {
                 stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Can't delete transaction", e);
+        }
+    }
+
+    //selecting and filtering in the net worth
+    public static List<NetWorthModel> getNetWorth() {
+        LocalDate nowYear = LocalDate.now();
+        return getSomeNetWorth(nowYear.getYear());
+    }
+
+    public static List<NetWorthModel> getSomeNetWorth(Integer year) {
+
+        String fetchNetWorth = """
+            SELECT *
+            FROM net_worth
+            WHERE substr(month, 1, 4) = ?;
+        """;
+
+        List<NetWorthModel> NetWorth = new ArrayList<>();
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(fetchNetWorth)) {
+
+            stmt.setString(1, String.valueOf(year));
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                NetWorth.add(new NetWorthModel(
+                    rs.getInt("id"),
+                    rs.getString("month"),
+                    rs.getString("bankBalance"),
+                    rs.getString("loans")
+                ));
+            }
+
+            return NetWorth;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch Net worth", e);
+        }
+    }
+
+    //selecting all the years to add to the filter of net worth
+    public static List<Integer> getAllYearsToFilter() {
+        String fetchYearsToFilter = """
+           SELECT DISTINCT substr(month, 1, 4) AS year FROM net_worth ORDER BY month
+        """;
+
+        List<Integer> yearsToFilter = new ArrayList<>();
+        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(fetchYearsToFilter);) {
+            while (rs.next()) {
+                yearsToFilter.add(rs.getInt("year"));
+            }
+            return yearsToFilter;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch years to add to filter of net worth", e);
         }
     }
 }
