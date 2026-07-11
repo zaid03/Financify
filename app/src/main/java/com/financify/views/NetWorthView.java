@@ -3,6 +3,8 @@ package com.financify.views;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.swing.table.TableColumnModel;
+
 import com.financify.Database;
 import com.financify.models.NetWorthModel;
 
@@ -14,6 +16,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -61,10 +64,76 @@ public class NetWorthView extends VBox{
         topBar.setLeft(add_button);
         topBar.setCenter(filters);
 
+        TableView<NetWorthModel> netWorth_table = new TableView<>();
+        TableColumn<NetWorthModel, String> monthColumn = new TableColumn<>("Month");
+        TableColumn<NetWorthModel, Double> bankBalanceColumn = new TableColumn<>("Bank Balance");
+        TableColumn<NetWorthModel, Integer> loanColumn = new TableColumn<>("Loans");
+        TableColumn<NetWorthModel, Double> netWorthColumn = new TableColumn<>("Net Worth");
+        monthColumn.setCellValueFactory(new PropertyValueFactory<>("month"));
+        bankBalanceColumn.setCellValueFactory(new PropertyValueFactory<>("bankBalance"));
+        bankBalanceColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double bankBalance, boolean empty) {
+                super.updateItem(bankBalance, empty);
+                if (empty || bankBalance == null) {
+                setText(null);
+                } else {
+                    setText(String.format("%.2f MAD", bankBalance));
+                }
+            }
+        });
+        loanColumn.setCellValueFactory(new PropertyValueFactory<>("loans"));
+        loanColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer loans, boolean empty) {
+            super.updateItem(loans, empty);
+            if (empty || loans == null) {
+                setText(null);
+            } else {
+                setText(String.format("%d MAD", loans));
+            }
+            }
+        });
+        netWorthColumn.setCellValueFactory(new PropertyValueFactory<>("netWorth"));
+        netWorthColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double netWorth, boolean empty) {
+                super.updateItem(netWorth, empty);
+                if (empty || netWorth == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f MAD", netWorth));
+                }
+            }
+        });
+        netWorth_table.getColumns().addAll(
+            monthColumn,
+            bankBalanceColumn,
+            loanColumn,
+            netWorthColumn
+        );
+        String table_style = """
+            -fx-background-color: white;
+            -fx-border-color: #D1D5DB;
+            -fx-border-radius: 8;
+            -fx-background-radius: 8;
+        """;
+        netWorth_table.setStyle(table_style);
+        netWorth_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+        List<NetWorthModel> netWorth = Database.getNetWorth();
+        netWorth_table.getItems().addAll(netWorth);
+        netWorth_table.setMinHeight(350);
+
+        yearComboBox.setOnAction(e -> {
+            netWorth_table.getItems().setAll(Database.getSomeNetWorth(yearComboBox.getValue()));
+        });
+
         content.getChildren().addAll(
             title,
             filter,
-            topBar
+            topBar,
+            netWorth_table
             
         );
         ScrollPane scrollPane = new ScrollPane(content);

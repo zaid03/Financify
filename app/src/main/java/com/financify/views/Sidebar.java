@@ -51,11 +51,11 @@ public class Sidebar extends VBox {
         transactionsBtn.setOnAction(e -> {
             root.setCenter(new TransactionsView());
         });
-        goalsBtn.setOnAction(e -> {
-            root.setCenter(new Label("goals"));
-        });
         netWorthBtn.setOnAction(e -> {
             root.setCenter(new NetWorthView());
+        });
+        goalsBtn.setOnAction(e -> {
+            root.setCenter(new Label("goals"));
         });
     }
 }

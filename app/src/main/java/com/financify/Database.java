@@ -243,8 +243,8 @@ public class Database {
                 NetWorth.add(new NetWorthModel(
                     rs.getInt("id"),
                     rs.getString("month"),
-                    rs.getString("bankBalance"),
-                    rs.getString("loans")
+                    rs.getDouble("bank_balance"),
+                    rs.getInt("loans")
                 ));
             }
 

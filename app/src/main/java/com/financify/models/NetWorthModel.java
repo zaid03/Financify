@@ -3,18 +3,19 @@ package com.financify.models;
 public class NetWorthModel {
     private Integer id;
     private String month;
-    private String bankBalance;
-    private String loans;
+    private Double bank_balance;
+    private Integer loans;
 
-    public NetWorthModel (Integer id, String month, String bankBalance, String loans) {
+    public NetWorthModel (Integer id, String month, Double bank_balance, Integer loans) {
         this.id = id;
         this.month = month;
-        this.bankBalance = bankBalance;
+        this.bank_balance = bank_balance;
         this.loans = loans;
     }
 
     public Integer getId() {return id;}
     public String getMonth() {return month;}
-    public String getBankBalance() {return bankBalance;}
-    public String getLoans() {return loans;}
+    public Double getBankBalance() {return bank_balance;}
+    public Integer getLoans() {return loans;}
+    public double getNetWorth() {return bank_balance - loans;}
 }
