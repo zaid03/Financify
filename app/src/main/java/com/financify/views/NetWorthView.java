@@ -3,8 +3,6 @@ package com.financify.views;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.swing.table.TableColumnModel;
-
 import com.financify.Database;
 import com.financify.models.NetWorthModel;
 
@@ -13,14 +11,12 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -203,6 +199,73 @@ public class NetWorthView extends VBox{
                 yearComboBox.setValue(LocalDate.now().getYear());
                 stage.close();
             });
+        });
+
+        //update a transaction grid
+        ComboBox monthUpdate = new ComboBox<>();
+        for (int i = 1; i <= 12; i++) {
+            monthUpdate.getItems().add(i);
+        }
+        ComboBox yearUpdate = new ComboBox<>();
+        yearUpdate.getItems().addAll(
+            2026,
+            2027,
+            2028,
+            2029,
+            2030,
+            2031,
+            2032,
+            2033,
+            2034,
+            2035
+        );
+        TextField bankBalanceUpdate = new TextField();
+        TextField loansUpdate = new TextField();
+        netWorth_table.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                NetWorthModel selected = netWorth_table.getSelectionModel().getSelectedItem();
+
+                if (selected != null) {
+                    monthUpdate.setValue(selected.getMonthNumber());
+                    yearUpdate.setValue(selected.getYear());
+                    bankBalanceUpdate.setText(selected.getBankBalance().toString());
+                    loansUpdate.setText(selected.getLoans().toString());
+
+                    GridPane update_netWorth_grid = new GridPane();
+                    update_netWorth_grid.setHgap(10);
+                    update_netWorth_grid.setVgap(10);
+                    update_netWorth_grid.setPadding(new Insets(20));
+
+                    update_netWorth_grid.add(new Label("Month: "), 0, 0);
+                    update_netWorth_grid.add(monthUpdate, 1, 0);
+
+                    update_netWorth_grid.add(new Label("Year: "), 0,1);
+                    update_netWorth_grid.add(yearUpdate, 1, 1);
+
+                    update_netWorth_grid.add(new Label("Bank balance: "), 0, 2);
+                    update_netWorth_grid.add(bankBalanceUpdate, 1, 2);
+
+                    update_netWorth_grid.add(new Label("Description: "), 0, 3);
+                    update_netWorth_grid.add(loansUpdate, 1, 3);
+
+                    Button updateButton = new Button("Update");
+                    updateButton.setStyle(btn_styles);
+                    updateButton.setStyle("-fx-background-color: #1f4037; -fx-text-fill: white;");
+                    Button deleteButton = new Button("Delete");
+                    deleteButton.setStyle(btn_styles);
+                    deleteButton.setStyle("-fx-background-color: #D70652; -fx-text-fill: white;");
+                    HBox butt_update = new HBox(10);
+                    butt_update.setAlignment(Pos.CENTER);
+                    butt_update.getChildren().addAll(updateButton, deleteButton);
+                    update_netWorth_grid.add(butt_update, 1, 4);
+
+                    Stage stage = new Stage();
+                    stage.setTitle("Update Transaction");
+                    stage.setScene(new Scene(update_netWorth_grid, 400, 280));
+                    stage.show();
+                }
+            }
+
         });
 
         content.getChildren().addAll(

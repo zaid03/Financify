@@ -15,6 +15,8 @@ public class NetWorthModel {
 
     public Integer getId() {return id;}
     public String getMonth() {return month;}
+    public Integer getYear() {return Integer.parseInt(month.substring(0, 4));}
+    public Integer getMonthNumber() {return Integer.parseInt(month.substring(5, 7));}
     public Double getBankBalance() {return bank_balance;}
     public Integer getLoans() {return loans;}
     public double getNetWorth() {return bank_balance - loans;}
