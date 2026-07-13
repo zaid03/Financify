@@ -273,7 +273,17 @@ public class NetWorthView extends VBox{
                             Integer.parseInt(loansUpdate.getText())
                         );
 
-                        System.out.println(MonthToSendUpdate);
+                        netWorth_table.getItems().setAll(Database.getNetWorth());
+                        yearComboBox.getItems().setAll(Database.getAllYearsToFilter());
+                        yearComboBox.setValue(LocalDate.now().getYear());
+                        stage.close();
+                    });
+
+                    deleteButton.setOnAction(y -> {
+                        Database.deleteNetWorth(
+                            selected.getId()
+                        );
+
                         netWorth_table.getItems().setAll(Database.getNetWorth());
                         yearComboBox.getItems().setAll(Database.getAllYearsToFilter());
                         yearComboBox.setValue(LocalDate.now().getYear());
