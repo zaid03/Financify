@@ -13,6 +13,8 @@ import java.util.List;
 
 import com.financify.models.Transactions;
 import com.financify.models.NetWorthModel;
+import com.financify.models.GoalsSection;
+import com.financify.models.GoalSummaryModel;
 
 public class Database {
     private static final String URL = "jdbc:sqlite:financify.db";
@@ -326,6 +328,56 @@ public class Database {
             PreparedStatement stmt = conn.prepareStatement(dell_sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't delete net worth", e);
+        }
+    }
+
+    //fetching goals
+    public static List<GoalsSection> getGoals() {
+        String fetch_sql = """
+            SELECT * FROM goals_section
+        """;
+
+        List<GoalsSection> goals = new ArrayList<>();
+        try (Connection conn = connect();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(fetch_sql);)  {
+                while (rs.next()) {
+                    goals.add(new GoalsSection(
+                        rs.getInt("id"),
+                        rs.getString("goal"),
+                        rs.getInt("target"),
+                        rs.getInt("remaining"),
+                        rs.getInt("current"),
+                        rs.getString("deadline")
+                    ));
+                }
+
+                return goals;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't delete net worth", e);
+        }
+    }
+
+    //fetching goals summary
+    public static GoalSummaryModel fetchGoalsSummary() {
+        String summary_sql = """
+            SELECT
+                SUM(target) AS total_target,
+                SUM(current) AS total_current,
+                SUM(target - current) AS total_remaining
+            FROM goals_section;
+        """;
+        try (Connection conn = connect();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(summary_sql);) {
+                rs.next();
+                return new GoalSummaryModel (
+                    rs.getInt("totalTarget"),
+                    rs.getInt("totalCurrent"),
+                    rs.getInt("totalRemaining")
+                );
         } catch (SQLException e) {
             throw new RuntimeException("Can't delete net worth", e);
         }
