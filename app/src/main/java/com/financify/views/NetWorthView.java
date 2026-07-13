@@ -263,9 +263,24 @@ public class NetWorthView extends VBox{
                     stage.setTitle("Update Transaction");
                     stage.setScene(new Scene(update_netWorth_grid, 400, 280));
                     stage.show();
+
+                    updateButton.setOnAction(f -> {
+                        String MonthToSendUpdate = String.format("%d-%02d", yearUpdate.getValue(), monthUpdate.getValue());
+                        Database.updateNetWorth(
+                            selected.getId(),
+                            MonthToSendUpdate,
+                            Double.parseDouble(bankBalanceUpdate.getText()),
+                            Integer.parseInt(loansUpdate.getText())
+                        );
+
+                        System.out.println(MonthToSendUpdate);
+                        netWorth_table.getItems().setAll(Database.getNetWorth());
+                        yearComboBox.getItems().setAll(Database.getAllYearsToFilter());
+                        yearComboBox.setValue(LocalDate.now().getYear());
+                        stage.close();
+                    });
                 }
             }
-
         });
 
         content.getChildren().addAll(

@@ -293,4 +293,26 @@ public class Database {
             throw new RuntimeException("Can't add to net worth", e);
         }
     }
+
+    //update monthly net worth
+    public static void updateNetWorth(Integer id, String month, Double bank_balance, Integer loans) {
+        String update_netWorth = """
+            UPDATE net_worth SET month = ?, bank_balance = ?, loans = ? WHERE id = ?
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(update_netWorth)){
+            stmt.setString(1, month);
+            stmt.setDouble(2, bank_balance);
+            if (loans == null) {
+                stmt.setNull(3, Types.INTEGER);
+            } else {
+                stmt.setInt(3, loans);
+            }
+            stmt.setInt(4, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't update net worth", e);
+        }
+    }
 }
