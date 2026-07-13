@@ -1,10 +1,12 @@
 package com.financify.views;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.financify.Database;
-import com.financify.models.Transactions;
+import com.financify.models.GoalSummaryModel;
+import com.financify.models.GoalsSection;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -40,10 +42,45 @@ public class GoalsView extends VBox{
         """;
         title.setStyle(title_styles);
 
-        Label filter = new Label("Change the date to display its transactions");
+        Button add_button = new Button("Add a goal");
+        String btn_styles = """
+            -fx-background-color: #abbaab;
+            -fx-text-fill: #000000;
+            -fx-font-size: 12px;
+            -fx-padding: 4 8;
+            -fx-background-radius: 4;
+        """;
+        add_button.setStyle(btn_styles);
+        add_button.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
+
+        Label savings = new Label("Savings status");
+        GoalSummaryModel stats = Database.fetchGoalsSummary();
+        Double net_Worth = Database.getNetWorthLatest(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        Integer total_target = stats.getTotalTarget();
+        Double is_enouph = net_Worth - total_target;
+        Label status = new Label(is_enouph.toString());
+        String phrases_styles = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #000000;
+        """;
+        savings.setStyle(phrases_styles);
+        status.setStyle(phrases_styles);
+
+        HBox filters = new HBox(10);
+        filters.setAlignment(Pos.CENTER);
+        filters.getChildren().addAll(savings, status);
+
+        BorderPane topBar = new BorderPane();
+        topBar.setLeft(add_button);
+        topBar.setCenter(filters);
+
+        TableView<GoalsSection> goals_table = new TableView<>();
+
 
         content.getChildren().addAll(
-            title
+            title,
+            topBar
             
         );
         ScrollPane scrollPane = new ScrollPane(content);

@@ -356,7 +356,7 @@ public class Database {
 
                 return goals;
         } catch (SQLException e) {
-            throw new RuntimeException("Can't delete net worth", e);
+            throw new RuntimeException("Can't fetch goals", e);
         }
     }
 
@@ -364,9 +364,9 @@ public class Database {
     public static GoalSummaryModel fetchGoalsSummary() {
         String summary_sql = """
             SELECT
-                SUM(target) AS total_target,
-                SUM(current) AS total_current,
-                SUM(target - current) AS total_remaining
+                SUM(target) AS totalTarget,
+                SUM(current) AS totalCurrent,
+                SUM(target - current) AS totalRemaining
             FROM goals_section;
         """;
         try (Connection conn = connect();
@@ -379,7 +379,25 @@ public class Database {
                     rs.getInt("totalRemaining")
                 );
         } catch (SQLException e) {
-            throw new RuntimeException("Can't delete net worth", e);
+            throw new RuntimeException("Can't fetch goals summary", e);
+        }
+    }
+
+    //getting latest networth to calculate saving status for goals
+    public static Double getNetWorthLatest(String month) {
+        String nets = """
+            SELECT SUM(bank_balance - loans) AS net_Worth FROM net_worth WHERE substr(month, 1, 7) = ?;
+        """;
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(nets);){
+                stmt.setString(1, month);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    return rs.getDouble("net_Worth");
+                }
+                return 0.0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch net worth for goals", e);
         }
     }
 }
