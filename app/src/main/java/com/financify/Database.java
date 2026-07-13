@@ -315,4 +315,19 @@ public class Database {
             throw new RuntimeException("Can't update net worth", e);
         }
     }
+
+    //delete a networth
+    public static void deleteNetWorth(Integer id) {
+        String dell_sql = """
+            delete from net_worth where id = ?
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(dell_sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't delete net worth", e);
+        }
+    }
 }

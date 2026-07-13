@@ -5,6 +5,7 @@ import com.financify.views.Sidebar;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -23,6 +24,9 @@ public class App extends Application {
 
         stage.setScene(scene);
         stage.setTitle("Financify");
+        stage.getIcons().add(
+            new Image(getClass().getResourceAsStream("/images/icon.png"))
+        );
         stage.setMaximized(true);
         stage.show();
     }
