@@ -1,5 +1,7 @@
 package com.financify.views;
 
+import com.financify.models.GoalsSection;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -55,7 +57,7 @@ public class Sidebar extends VBox {
             root.setCenter(new NetWorthView());
         });
         goalsBtn.setOnAction(e -> {
-            root.setCenter(new Label("goals"));
+            root.setCenter(new GoalsView());
         });
     }
 }
