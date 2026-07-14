@@ -11,10 +11,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.financify.models.Transactions;
-import com.financify.models.NetWorthModel;
-import com.financify.models.GoalsSection;
 import com.financify.models.GoalSummaryModel;
+import com.financify.models.GoalsSection;
+import com.financify.models.NetWorthModel;
+import com.financify.models.Transactions;
 
 public class Database {
     private static final String URL = "jdbc:sqlite:financify.db";
@@ -348,7 +348,6 @@ public class Database {
                         rs.getInt("id"),
                         rs.getString("goal"),
                         rs.getInt("target"),
-                        rs.getInt("remaining"),
                         rs.getInt("current"),
                         rs.getString("deadline")
                     ));
@@ -398,6 +397,56 @@ public class Database {
                 return 0.0;
         } catch (SQLException e) {
             throw new RuntimeException("Can't fetch net worth for goals", e);
+        }
+    }
+
+    //adding a goal
+    public static void addGoal(String goal, Integer target, Integer current, String deadline) {
+        String add_sql = """
+            INSERT INTO goals_section (goal, target, current, deadline) VALUES (?, ?, ?, ?)
+        """;
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(add_sql)){
+                stmt.setString(1, goal);
+                stmt.setInt(2, target);
+                stmt.setInt(3, current);
+                stmt.setString(4, deadline);
+                stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't add goal", e);
+        }
+    }
+
+    //updating a goal
+    public static void updateGoal(Integer id, String goal, Integer target, Integer current, String deadline) {
+        String update_sql = """
+            UPDATE goals_section SET goal = ?, target = ?, current = ?, deadline = ? WHERE id = ?
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(update_sql)) {
+            stmt.setString(1, goal);
+            stmt.setInt(2, target);
+            stmt.setInt(3, current);
+            stmt.setString(4, deadline);
+            stmt.setInt(5, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't update goal", e);
+        }
+    }
+
+    //deleting a goal
+    public static void deleteGoal(Integer id) {
+        String delete_sql = """
+            DELETE FROM goals_section WHERE id = ?
+        """;
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(delete_sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't delete goal", e);
         }
     }
 }
