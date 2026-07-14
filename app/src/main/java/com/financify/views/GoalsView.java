@@ -152,6 +152,20 @@ public class GoalsView extends VBox{
         goals_table.setStyle(table_style);
         goals_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
+        GoalSummaryModel total_stats = Database.fetchGoalsSummary();
+        Integer total_saving_amount = total_stats.getTotalTarget();
+        Integer total_saved_amount = total_stats.getTotalCurrent();
+        Integer total_remaining_amount = total_stats.getTotalRemaining();
+        Label total_saving = new Label("Total Savings Goal: " + total_saving_amount + " MAD");
+        Label total_saved = new Label("Currently Saved: " + total_saved_amount + " MAD");
+        Label total_remaining = new Label("Remaining to Save: " + total_remaining_amount + " MAD");
+        total_saving.setStyle(phrases_styles);
+        total_saved.setStyle(phrases_styles);
+        total_remaining.setStyle(phrases_styles);
+        VBox total_totals = new VBox();
+        total_totals.setAlignment(Pos.CENTER);
+        total_totals.getChildren().addAll(total_saving, total_saved, total_remaining);
+
         Runnable refreshContent = () -> {
             goals_table.getItems().setAll(Database.getGoals());
 
@@ -160,6 +174,19 @@ public class GoalsView extends VBox{
             Integer total_targetUpdate = statsUpdate.getTotalTarget();
             Double is_enouphUpdate = net_WorthUpdate - total_targetUpdate;
             status.setText(is_enouphUpdate.toString());
+
+            GoalSummaryModel total_statsUpdate = Database.fetchGoalsSummary();
+            total_saving.setText(
+                "Total Savings Goal: " + total_statsUpdate.getTotalTarget() + " MAD"
+            );
+
+            total_saved.setText(
+                "Currently Saved: " + total_statsUpdate.getTotalCurrent() + " MAD"
+            );
+
+            total_remaining.setText(
+                "Remaining to Save: " + total_statsUpdate.getTotalRemaining() + " MAD"
+            );
         };
 
         //add goal grid
@@ -285,20 +312,6 @@ public class GoalsView extends VBox{
                 }
             }
         });
-
-        GoalSummaryModel total_stats = Database.fetchGoalsSummary();
-        Integer total_saving_amount = total_stats.getTotalTarget();
-        Integer total_saved_amount = total_stats.getTotalCurrent();
-        Integer total_remaining_amount = total_stats.getTotalRemaining();
-        Label total_saving = new Label("Total Savings Goal: " + total_saving_amount + " MAD");
-        Label total_saved = new Label("Currently Saved: " + total_saved_amount + " MAD");
-        Label total_remaining = new Label("Remaining to Save: " + total_remaining_amount + " MAD");
-        total_saving.setStyle(phrases_styles);
-        total_saved.setStyle(phrases_styles);
-        total_remaining.setStyle(phrases_styles);
-        VBox total_totals = new VBox();
-        total_totals.setAlignment(Pos.CENTER);
-        total_totals.getChildren().addAll(total_saving, total_saved, total_remaining);
 
         content.getChildren().addAll(
             title,
