@@ -42,7 +42,7 @@ public class Database {
         String netWorthtable = """
             CREATE TABLE IF NOT EXISTS net_worth (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                month TEXT,
+                month TEXT UNIQUE,
                 bank_balance,
                 loans INTEGER,
                 net_worth INTEGER
@@ -51,7 +51,7 @@ public class Database {
         String goals_section = """
             CREATE TABLE IF NOT EXISTS goals_section (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                goal TEXT,
+                goal TEXT UNIQUE,
                 target INTEGER,
                 current INTEGER,
                 remaining INTEGER,
