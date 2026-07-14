@@ -44,8 +44,7 @@ public class Database {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 month TEXT UNIQUE,
                 bank_balance,
-                loans INTEGER,
-                net_worth INTEGER
+                loans INTEGER
             )
         """;
         String goals_section = """
