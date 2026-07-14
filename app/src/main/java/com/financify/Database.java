@@ -52,8 +52,7 @@ public class Database {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 goal TEXT UNIQUE,
                 target INTEGER,
-                current INTEGER,
-                remaining INTEGER,
+                current INTEGER
                 deadline TEXT
             )
         """;
