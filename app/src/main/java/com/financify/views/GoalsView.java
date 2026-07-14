@@ -63,9 +63,23 @@ public class GoalsView extends VBox{
             -fx-font-weight: bold;
             -fx-text-fill: #000000;
         """;
+        String positive_text = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: green;
+        """;
+        String negative_text = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: red;
+        """;
         savings.setStyle(phrases_styles);
         status.setStyle(phrases_styles);
-
+        if (is_enouph < 0) {
+            status.setStyle(negative_text);
+        } else {
+            status.setStyle(positive_text);
+        }
         HBox filters = new HBox(10);
         filters.setAlignment(Pos.CENTER);
         filters.getChildren().addAll(savings, status);

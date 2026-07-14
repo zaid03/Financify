@@ -286,7 +286,7 @@ public class Database {
             stmt.setString(1, month);
             stmt.setDouble(2, bank_balance);
             if (loans == null) {
-                stmt.setNull(3, Types.INTEGER);
+                stmt.setInt(3, 0);
             } else {
                 stmt.setInt(3, loans);
             }

@@ -182,7 +182,7 @@ public class NetWorthView extends VBox{
                 if (loans.getText().isBlank()) {
                     loanValue = null;
                 } else {
-                    Integer.parseInt(loans.getText());
+                    loanValue = Integer.parseInt(loans.getText());
                 }
                 Database.postNetWorth (
                     MonthToSend,
