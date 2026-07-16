@@ -38,3 +38,6 @@ target/
 
 #db
 app/financify.db
+
+#executable app
+Financify/
