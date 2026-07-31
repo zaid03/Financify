@@ -44,6 +44,13 @@ jlink {
     }
 
     jpackage {
+        appVersion = "1.0.0"
+        vendor = "Zaid Terguy"
+        description = "Personal finance manager built with JavaFX"
+        installerOptions = [
+            '--win-menu',
+            '--win-shortcut'
+        ]
         imageName = 'Financify'
         installerName = 'Financify'
         icon = 'src/main/resources/images/icon.ico'
