@@ -48,7 +48,7 @@ public class Sidebar extends VBox {
         );
 
         dashboardBtn.setOnAction(e -> {
-            root.setCenter(new Label("dashboard"));
+            root.setCenter(new DashboardView());
         });
         transactionsBtn.setOnAction(e -> {
             root.setCenter(new TransactionsView());
