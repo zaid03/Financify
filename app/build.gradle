@@ -30,6 +30,7 @@ java {
 }
 
 application {
+    mainModule = 'com.financify'
     mainClass = 'com.financify.App'
 }
 
