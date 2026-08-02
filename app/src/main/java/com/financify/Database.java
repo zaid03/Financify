@@ -12,9 +12,11 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.financify.models.ExpenseCategoryModel;
 import com.financify.models.GoalSummaryModel;
 import com.financify.models.GoalsSection;
 import com.financify.models.MonthlySummaryModel;
+import com.financify.models.NetWorthGrowthModel;
 import com.financify.models.NetWorthModel;
 import com.financify.models.Transactions;
 
@@ -546,6 +548,66 @@ public class Database {
             return monthlySummary;
         } catch (SQLException e) {
             throw new RuntimeException("Can't fetch last 6 months total of expenses and incomes", e);
+        }
+    }
+
+    //selecting expenses by category
+    public static List<ExpenseCategoryModel> getExpensesByCategory() {
+        String sql = """
+            SELECT
+                category,
+                SUM(amount) AS amount
+            FROM transactions
+            WHERE type = 'Expense'
+            AND substr(date, 1, 7) = strftime('%Y-%m', 'now')
+            GROUP BY category
+            ORDER BY category;
+        """;
+
+        List<ExpenseCategoryModel> breakdown = new ArrayList<>();
+
+        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql);) {
+            while (rs.next()) {
+                breakdown.add(new ExpenseCategoryModel(
+                    rs.getString("category"),
+                    rs.getDouble("amount")
+                ));
+            }
+
+            return breakdown;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch expenses by category", e);
+        }
+    }
+
+    //seleting networth growth
+    public static List<NetWorthGrowthModel> getNetWorthGrowth() {
+        String sql = """
+            SELECT *
+                FROM (
+                    SELECT
+                        month,
+                        bank_balance - COALESCE(loans, 0) AS net_worth
+                    FROM net_worth
+                    ORDER BY month DESC
+                    LIMIT 6
+                )
+            ORDER BY month;
+        """;
+
+        List<NetWorthGrowthModel> growth = new ArrayList<>();
+
+        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql);) {
+            while (rs.next()) {
+                growth.add(new NetWorthGrowthModel(
+                    rs.getString("month"),
+                    rs.getDouble("net_worth")
+                ));
+            }
+
+            return growth;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch net worth growth", e);
         }
     }
 }

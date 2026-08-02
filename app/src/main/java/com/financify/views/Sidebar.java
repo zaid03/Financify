@@ -1,11 +1,8 @@
 package com.financify.views;
 
-import com.financify.models.GoalsSection;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
@@ -27,17 +24,43 @@ public class Sidebar extends VBox {
         netWorthBtn.setMaxWidth(Double.MAX_VALUE);
 
         String buttonStyle = """
-            -fx-background-color: #abbaab;
-            -fx-text-fill: #000000;
+            -fx-background-color: transparent;
+            -fx-text-fill: #782170;
+            -fx-border-color: #782170;
+            -fx-border-width: 2;
+            -fx-border-radius: 10;
+            -fx-background-radius: 10;
             -fx-font-size: 14px;
             -fx-font-weight: bold;
-            -fx-background-radius: 8;
-            -fx-padding: 10 12;
-            """;
+            -fx-padding: 12 16;
+            -fx-cursor: hand;
+        """;
+
+        String hoverStyle = """
+            -fx-border-color: #782170;
+            -fx-border-width: 2;
+            -fx-border-radius: 10;
+            -fx-background-radius: 10;
+            -fx-font-size: 14px;
+            -fx-font-weight: bold;
+            -fx-padding: 12 16;
+            -fx-cursor: hand;
+            -fx-background-color: #923089;
+            -fx-text-fill: white;
+        """;
+
         dashboardBtn.setStyle(buttonStyle);
+        dashboardBtn.setOnMouseEntered(e -> dashboardBtn.setStyle(hoverStyle));
+        dashboardBtn.setOnMouseExited(e -> dashboardBtn.setStyle(buttonStyle));
         transactionsBtn.setStyle(buttonStyle);
+        transactionsBtn.setOnMouseEntered(e -> transactionsBtn.setStyle(hoverStyle));
+        transactionsBtn.setOnMouseExited(e -> transactionsBtn.setStyle(buttonStyle));
         goalsBtn.setStyle(buttonStyle);
+        goalsBtn.setOnMouseEntered(e -> goalsBtn.setStyle(hoverStyle));
+        goalsBtn.setOnMouseExited(e -> goalsBtn.setStyle(buttonStyle));
         netWorthBtn.setStyle(buttonStyle);
+        netWorthBtn.setOnMouseEntered(e -> netWorthBtn.setStyle(hoverStyle));
+        netWorthBtn.setOnMouseExited(e -> netWorthBtn.setStyle(buttonStyle));
 
         setAlignment(Pos.CENTER);
         getChildren().addAll(

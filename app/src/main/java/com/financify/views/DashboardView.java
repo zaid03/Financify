@@ -4,7 +4,9 @@ import java.util.List;
 
 import com.financify.Database;
 import com.financify.models.DashboardStat;
+import com.financify.models.ExpenseCategoryModel;
 import com.financify.models.MonthlySummaryModel;
+import com.financify.models.NetWorthGrowthModel;
 import com.financify.models.NetWorthModel;
 
 import javafx.geometry.Insets;
@@ -108,8 +110,45 @@ public class DashboardView extends VBox{
         monthlySummary.getChildren().addAll(monthly_title, monthlySummaryTable);
         monthlySummary.setAlignment(Pos.TOP_CENTER);
 
+        Label breakdown_title = new Label("Expense breakdown");
+        breakdown_title.setStyle(words_styles);
+
+        TableView<ExpenseCategoryModel> breakdown_table = new TableView<>();
+        TableColumn<ExpenseCategoryModel, String> categoryColumn = new TableColumn<>("Category");
+        TableColumn<ExpenseCategoryModel, String> amountColumn = new TableColumn<>("Amount");
+        categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+        amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        breakdown_table.getColumns().addAll(categoryColumn, amountColumn);
+        breakdown_table.setMaxHeight(200);
+        breakdown_table.setStyle(table_style);
+        breakdown_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+        List<ExpenseCategoryModel> breakdown_expenses = Database.getExpensesByCategory();
+        breakdown_table.getItems().addAll(breakdown_expenses);
+        
         VBox expenseBreakdown = new VBox();
+        expenseBreakdown.getChildren().addAll(breakdown_title, breakdown_table);
+        expenseBreakdown.setAlignment(Pos.TOP_CENTER);
+
+        Label growth_title = new Label("Net worth breakdown");
+        growth_title.setStyle(words_styles); 
+
+        TableView<NetWorthGrowthModel> netWorthGrowrthTable = new TableView<>();
+        TableColumn<NetWorthGrowthModel, String> monthGrowthColumn = new TableColumn<>("Month");
+        TableColumn<NetWorthGrowthModel, String> savingsColumn = new TableColumn<>("Savings");
+        monthGrowthColumn.setCellValueFactory(new PropertyValueFactory<>("month"));
+        savingsColumn.setCellValueFactory(new PropertyValueFactory<>("netWorth"));
+        netWorthGrowrthTable.getColumns().addAll(monthGrowthColumn, savingsColumn);
+        netWorthGrowrthTable.setMaxHeight(200);
+        netWorthGrowrthTable.setStyle(table_style);
+        netWorthGrowrthTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+        List<NetWorthGrowthModel> growth = Database.getNetWorthGrowth();
+        netWorthGrowrthTable.getItems().addAll(growth);
+
         VBox netWorthGrowth = new VBox();
+        netWorthGrowth.getChildren().addAll(growth_title, netWorthGrowrthTable);
+        netWorthGrowth.setAlignment(Pos.TOP_CENTER);
 
         GridPane main_content = new GridPane();
         main_content.add(currentSituation, 0, 0);
@@ -120,9 +159,12 @@ public class DashboardView extends VBox{
         main_content.setHgap(20);
         main_content.setVgap(20);
 
+        Label zaid = new Label("Made with ♥ by zaid");
+        zaid.setStyle(words_styles);
         content.getChildren().addAll(
             title,
-            main_content
+            main_content,
+            zaid
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);

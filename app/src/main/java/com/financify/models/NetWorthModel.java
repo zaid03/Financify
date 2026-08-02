@@ -1,5 +1,9 @@
 package com.financify.models;
 
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 public class NetWorthModel {
     private Integer id;
     private String month;
@@ -14,7 +18,9 @@ public class NetWorthModel {
     }
 
     public Integer getId() {return id;}
-    public String getMonth() {return month;}
+     public String getMonth() {
+        return YearMonth.parse(month).format(DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH));
+    }
     public Integer getYear() {return Integer.parseInt(month.substring(0, 4));}
     public Integer getMonthNumber() {return Integer.parseInt(month.substring(5, 7));}
     public Double getBankBalance() {return bank_balance;}
