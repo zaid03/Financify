@@ -1,8 +1,8 @@
 # Financify
 
-A modern desktop personal finance application built with **JavaFX** and **SQLite**.
+**Financify** is a desktop personal finance management application built with **Java**, **JavaFX**, and **SQLite**. It helps users track income, expenses, savings goals, and net worth through a clean and intuitive interface.
 
-Financify is a personal project created to learn JavaFX by building a complete desktop application from the ground up. The focus is on writing clean, maintainable code while exploring desktop UI development, database integration, and application architecture.
+This project was developed to strengthen my Java and desktop application development skills while building a practical finance management tool for personal use.
 
 ---
 
@@ -10,142 +10,119 @@ Financify is a personal project created to learn JavaFX by building a complete d
 
 ### 📊 Dashboard
 
-* Financial overview
-* Savings statistics
-* Monthly expense summary
-* Quick access to important information
+* Current financial situation
+* Monthly income, expenses, and savings
+* Savings rate
+* Expense breakdown by category
+* Monthly summary for the past 6 months
+* Net worth growth overview for the past 6 months
 
 ### 💳 Transactions
 
-* Add income and expenses
-* Edit existing transactions
-* Delete transactions with confirmation
+* Add transactions
+* Edit transactions
+* Delete transactions
 * Monthly and yearly filtering
-* Total monthly expenses
-* Category-based organization
+* Income and expense tracking
+* Categories and descriptions
 
-### 📈 Net Worth
+### 💰 Net Worth
 
-* Record monthly net worth
-* View yearly net worth history
-* Filter records by year
+* Monthly bank balance tracking
+* Loan management
+* Automatic net worth calculation
 
-### 🎯 Goals *(In Progress)*
+### 🎯 Savings Goals
 
-* Savings goals
-* Progress tracking
-* Goal management
+* Create savings goals
+* Update and delete goals
+* Track current progress
+* Remaining amount calculation
+* Overall savings statistics
 
 ---
 
 ## Technologies
 
 * Java 21
-* JavaFX 21
-* Gradle
+* JavaFX
 * SQLite
-
----
+* Gradle
+* JDBC
 
 ## Project Structure
 
-```
+```text
 src/
-└── main/
-    └── java/
-        └── com/
-            └── financify/
-                ├── App.java
-                ├── Database.java
-                ├── models/
-                │   ├── Transactions.java
-                │   ├── NetWorthModel.java
-                │   └── TransactionLegend.java
-                └── views/
-                    ├── Sidebar.java
-                    ├── DashboardView.java
-                    ├── TransactionsView.java
-                    ├── GoalsView.java
-                    └── NetWorthView.java
+ ├── com.financify
+ │    ├── App.java
+ │    ├── Database.java
+ │    ├── models/
+ │    └── views/
+ └── resources/
 ```
-
----
-
-## Screenshots
-
-*Screenshots will be added as the project develops.*
 
 ---
 
 ## Running the Project
 
-### Clone the repository
-
-```bash
-git clone https://github.com/your-username/Financify.git
-```
-
-### Open the project
-
-Open the project in your preferred Java IDE (VS Code, IntelliJ IDEA, etc.).
-
 ### Requirements
 
-* Java 21 or newer
-* Gradle (or use the included Gradle Wrapper)
+* Java 21+
+* Gradle
 
-### Run
+Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/Financify.git
+```
+
+Run the application:
 
 ```bash
 ./gradlew run
 ```
 
----
+Build the project:
 
-## Current Status
-
-### ✅ Completed
-
-* Sidebar navigation
-* Dashboard layout
-* Transactions CRUD
-* Monthly expense calculation
-* Month and year filtering
-* SQLite database integration
-* Net Worth history with yearly filtering
-
-### 🚧 In Progress
-
-* Goals module
-* Dashboard improvements
-* Additional statistics and charts
-* UI polishing
+```bash
+./gradlew build
+./gradlew jpackageImage #to package the app and generate an exe
+app/build/jpackage/Financify/Financify.exe #to launch the app from the package
+```
 
 ---
 
-## Design
+## Database
 
-* Clean and minimal interface
-* Light theme
-* JavaFX UI built entirely in Java
-* Styling performed with `setStyle()` (no external CSS)
+The application uses an SQLite database with three main modules:
+
+* Transactions
+* Net Worth
+* Savings Goals
+
+Data is retrieved using SQL aggregation queries to generate dashboard statistics and financial reports.
 
 ---
 
-## Learning Objectives
+## Purpose
 
-This project is primarily intended to improve understanding of:
+This project was created for personal use and as a portfolio project to track personal expenses and to improve my skills in:
 
-* JavaFX
+* Object-Oriented Programming
+* JavaFX UI development
 * Desktop application architecture
-* SQLite databases
-* Java collections
-* MVC-inspired project organization
-* Clean code practices
-* Gradle project management
-
----
+* SQL and database design
+* CRUD operations
+* Data visualization
+* Gradle build automation
 
 ## License
 
-This project is available under the MIT License.
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+## 👨‍💻 Author
+
+**Zaid Terguy**
+
+Made with ♥ using Java.

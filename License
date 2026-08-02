@@ -1,20 +1,15 @@
-MIT License
+Copyright (c) 2026 Zaid Terguy. All rights reserved.
 
-Copyright (c) 2026 Zaid Terguy
+Permission is granted to use this software for personal and educational purposes only.
 
-Permission is hereby granted, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+You may not, without prior written permission from the copyright holder:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+* Copy or redistribute this software or its source code.
+* Modify or create derivative works.
+* Sell, sublicense, or commercially exploit this software.
+* Include this software or its source code in another project.
+* Reverse engineer, decompile, or disassemble the software except where permitted by applicable law.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+To request permission for commercial use, redistribution, modification, or any other use not expressly permitted by this license, contact the copyright holder.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. THE AUTHOR SHALL NOT BE LIABLE FOR ANY DAMAGES ARISING FROM THE USE OF THIS SOFTWARE.

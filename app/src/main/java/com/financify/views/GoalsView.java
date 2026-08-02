@@ -32,7 +32,7 @@ public class GoalsView extends VBox{
         content.setPadding(new Insets(20));
         content.setAlignment(Pos.TOP_CENTER);
 
-        Label title = new Label("Goals and objectives");
+        Label title = new Label("Saving goals");
 
         String title_styles = """
             -fx-font-size: 28px;
