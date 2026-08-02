@@ -37,22 +37,27 @@ public class GoalsView extends VBox{
         String title_styles = """
             -fx-font-size: 28px;
             -fx-font-weight: bold;
-            -fx-text-fill: #6a726a;
+            -fx-text-fill: #782170;
         """;
         title.setStyle(title_styles);
 
         Button add_button = new Button("Add a goal");
         String btn_styles = """
-            -fx-background-color: #abbaab;
-            -fx-text-fill: #000000;
+            -fx-background-color: #156082;
+            -fx-text-fill: #ffffff;
             -fx-font-size: 12px;
             -fx-padding: 4 8;
             -fx-background-radius: 4;
         """;
+        String words_styles = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #0B3040;
+        """;
         add_button.setStyle(btn_styles);
-        add_button.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
 
-        Label savings = new Label("Savings status");
+        Label savings = new Label("Savings status: ");
+        savings.setStyle(words_styles);
         GoalSummaryModel stats = Database.fetchGoalsSummary();
         Double net_Worth = Database.getNetWorthLatest(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM")));
         Integer total_target = stats.getTotalTarget();
@@ -61,25 +66,12 @@ public class GoalsView extends VBox{
         String phrases_styles = """
             -fx-font-size: 16px;
             -fx-font-weight: bold;
-            -fx-text-fill: #000000;
-        """;
-        String positive_text = """
-            -fx-font-size: 16px;
-            -fx-font-weight: bold;
-            -fx-text-fill: green;
-        """;
-        String negative_text = """
-            -fx-font-size: 16px;
-            -fx-font-weight: bold;
-            -fx-text-fill: red;
+            -fx-text-fill: #0B3040;
         """;
         savings.setStyle(phrases_styles);
         status.setStyle(phrases_styles);
-        if (is_enouph < 0) {
-            status.setStyle(negative_text);
-        } else {
-            status.setStyle(positive_text);
-        }
+        
+        setStatusColor(status, is_enouph);
         HBox filters = new HBox(10);
         filters.setAlignment(Pos.CENTER);
         filters.getChildren().addAll(savings, status);
@@ -175,6 +167,8 @@ public class GoalsView extends VBox{
             Double is_enouphUpdate = net_WorthUpdate - total_targetUpdate;
             status.setText(is_enouphUpdate.toString());
 
+            setStatusColor(status, is_enouphUpdate);
+
             GoalSummaryModel total_statsUpdate = Database.fetchGoalsSummary();
             total_saving.setText(
                 "Total Savings Goal: " + total_statsUpdate.getTotalTarget() + " MAD"
@@ -214,7 +208,6 @@ public class GoalsView extends VBox{
 
             Button addGoal = new Button("Add");
             addGoal.setStyle(btn_styles);
-            addGoal.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
             addGoal.setAlignment(Pos.CENTER);
             add_goal_grid.add(addGoal, 1, 5);
 
@@ -322,5 +315,24 @@ public class GoalsView extends VBox{
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
         getChildren().add(scrollPane);
+    }
+
+    String positive_text = """
+        -fx-font-size: 16px;
+        -fx-font-weight: bold;
+        -fx-text-fill: green;
+    """;
+    String negative_text = """
+        -fx-font-size: 16px;
+        -fx-font-weight: bold;
+        -fx-text-fill: red;
+    """;
+
+    private void setStatusColor(Label label, double value) {
+        if (value < 0) {
+            label.setStyle(negative_text);
+        } else {
+            label.setStyle(positive_text);
+        }
     }
 }

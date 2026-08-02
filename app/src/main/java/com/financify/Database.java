@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -256,6 +257,39 @@ public class Database {
         }
     }
 
+    //selecting a specific net worth
+    public static NetWorthModel getNetWorthExact() {
+        YearMonth DDate = YearMonth.now();
+
+        String fetchNetWorth = """
+            SELECT *
+            FROM net_worth
+            WHERE month = ?;
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(fetchNetWorth)) {
+
+            stmt.setString(1, String.valueOf(DDate));
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                NetWorthModel netWorth = new NetWorthModel(
+                    rs.getInt("id"),
+                    rs.getString("month"),
+                    rs.getDouble("bank_balance"),
+                    rs.getInt("loans")
+                );
+
+                return netWorth;
+            }
+
+            return null;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch Net worth", e);
+        }
+    }
+
     //selecting all the years to add to the filter of net worth
     public static List<Integer> getAllYearsToFilter() {
         String fetchYearsToFilter = """
@@ -445,6 +479,42 @@ public class Database {
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Can't delete goal", e);
+        }
+    }
+
+    //selecting total of incomes
+    public static Double getTotalIncome() {
+        LocalDate now = LocalDate.now();
+        return getTotalIncomeOpen(now.getYear(), now.getMonthValue());
+    }
+
+    public static Double getTotalIncomeOpen(Integer year, Integer month) {
+        LocalDate firstDay = LocalDate.of(year, month, 1);
+        LocalDate firstDayNextMonth = firstDay.plusMonths(1);
+
+        String fetchTransactions = """
+            SELECT SUM(amount) AS total_earned
+            FROM transactions
+            WHERE type = 'Income' And
+            date >= ? AND date < ?
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(fetchTransactions)) {
+
+            stmt.setString(1, firstDay.toString());
+            stmt.setString(2, firstDayNextMonth.toString());
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("total_earned");
+            }
+
+            return 0.0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch total amount spent", e);
         }
     }
 }

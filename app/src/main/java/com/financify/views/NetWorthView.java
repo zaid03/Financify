@@ -34,24 +34,29 @@ public class NetWorthView extends VBox{
         String title_styles = """
             -fx-font-size: 28px;
             -fx-font-weight: bold;
-            -fx-text-fill: #6a726a;
+            -fx-text-fill: #782170;
+        """;
+        String words_styles = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #0B3040;
         """;
         title.setStyle(title_styles);
         Label filter = new Label("Change the year to display its net tracking history");
+        filter.setStyle(words_styles);
 
         ComboBox<Integer> yearComboBox = new ComboBox<>();
         yearComboBox.getItems().addAll(Database.getAllYearsToFilter());
         yearComboBox.setValue(LocalDate.now().getYear());
         Button add_button = new Button("Add Date");
         String btn_styles = """
-            -fx-background-color: #abbaab;
-            -fx-text-fill: #000000;
+            -fx-background-color: #156082;
+            -fx-text-fill: #ffffff;
             -fx-font-size: 12px;
             -fx-padding: 4 8;
             -fx-background-radius: 4;
         """;
         add_button.setStyle(btn_styles);
-        add_button.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
 
         HBox filters = new HBox(10);
         filters.setAlignment(Pos.CENTER);
@@ -167,7 +172,6 @@ public class NetWorthView extends VBox{
             
             Button addTransaction = new Button("Add");
             addTransaction.setStyle(btn_styles);
-            add_button.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
             addTransaction.setAlignment(Pos.CENTER);
             add_net_worth_grid.add(addTransaction, 1, 5);
 
@@ -298,7 +302,6 @@ public class NetWorthView extends VBox{
             filter,
             topBar,
             netWorth_table
-            
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);

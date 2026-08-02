@@ -14,10 +14,10 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -36,12 +36,12 @@ public class TransactionsView extends VBox{
         String title_styles = """
             -fx-font-size: 28px;
             -fx-font-weight: bold;
-            -fx-text-fill: #6a726a;
+            -fx-text-fill: #782170;
         """;
         title.setStyle(title_styles);
 
         Label filter = new Label("Change the date to display its transactions");
-
+        
         ComboBox<Integer> monthComboBox = new ComboBox<>();
         ComboBox<Integer> yearComboBox = new ComboBox<>();
         for (int i = 1; i <= 12; i++) {
@@ -53,14 +53,13 @@ public class TransactionsView extends VBox{
 
         Button add_button = new Button("Add transaction");
         String btn_styles = """
-            -fx-background-color: #abbaab;
-            -fx-text-fill: #000000;
+            -fx-background-color: #156082;
+            -fx-text-fill: #ffffff;
             -fx-font-size: 12px;
             -fx-padding: 4 8;
             -fx-background-radius: 4;
         """;
         add_button.setStyle(btn_styles);
-        add_button.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
 
         HBox filters = new HBox(10);
         filters.setAlignment(Pos.CENTER);
@@ -128,10 +127,10 @@ public class TransactionsView extends VBox{
         String words_styles = """
             -fx-font-size: 16px;
             -fx-font-weight: bold;
-            -fx-text-fill: #000000;
+            -fx-text-fill: #0B3040;
         """;
-
         amount.setStyle(words_styles);
+        filter.setStyle(words_styles);
 
         //adding a transaction grid
         DatePicker add_Date = new DatePicker();
@@ -185,7 +184,6 @@ public class TransactionsView extends VBox{
 
             Button addTransaction = new Button("Add");
             addTransaction.setStyle(btn_styles);
-            add_button.setStyle("-fx-background-color: #009ffc; -fx-text-fill: white;");
             addTransaction.setAlignment(Pos.CENTER);
             add_transaction_grid.add(addTransaction, 1, 5);
 
