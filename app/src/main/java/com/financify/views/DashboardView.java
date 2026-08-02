@@ -1,7 +1,10 @@
 package com.financify.views;
 
+import java.util.List;
+
 import com.financify.Database;
 import com.financify.models.DashboardStat;
+import com.financify.models.MonthlySummaryModel;
 import com.financify.models.NetWorthModel;
 
 import javafx.geometry.Insets;
@@ -30,6 +33,13 @@ public class DashboardView extends VBox{
             -fx-font-weight: bold;
             -fx-text-fill: #0B3040;
         """;
+        String table_style = """
+            -fx-background-color: white;
+            -fx-border-color: #D1D5DB;
+            -fx-border-radius: 8;
+            -fx-background-radius: 8;
+        """;
+
         Label title = new Label("Dashboard");
         title.setStyle(title_styles);
 
@@ -43,13 +53,6 @@ public class DashboardView extends VBox{
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("Value"));
         currentSituationTable.getColumns().addAll(metricColumn, valueColumn);
         currentSituationTable.setMaxHeight(200);
-
-        String table_style = """
-            -fx-background-color: white;
-            -fx-border-color: #D1D5DB;
-            -fx-border-radius: 8;
-            -fx-background-radius: 8;
-        """;
         currentSituationTable.setStyle(table_style);
         currentSituationTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
@@ -81,7 +84,30 @@ public class DashboardView extends VBox{
         currentSituation.getChildren().addAll(situation_title, currentSituationTable);
         currentSituation.setAlignment(Pos.TOP_CENTER);
 
+        Label monthly_title = new Label("Monthly summary");
+        monthly_title.setStyle(words_styles);
+
+        TableView<MonthlySummaryModel> monthlySummaryTable = new TableView<>();
+        TableColumn<MonthlySummaryModel, String> monthColumn = new TableColumn<>("Month");
+        TableColumn<MonthlySummaryModel, String> incomeColumn = new TableColumn<>("Income");
+        TableColumn<MonthlySummaryModel, String> espensesColumn = new TableColumn<>("Expenses");
+        TableColumn<MonthlySummaryModel, String> savedColumn = new TableColumn<>("Saved");
+        monthColumn.setCellValueFactory(new PropertyValueFactory<>("month"));
+        incomeColumn.setCellValueFactory(new PropertyValueFactory<>("income"));
+        espensesColumn.setCellValueFactory(new PropertyValueFactory<>("expenses"));
+        savedColumn.setCellValueFactory(new PropertyValueFactory<>("saved"));
+        monthlySummaryTable.getColumns().addAll(monthColumn, incomeColumn, espensesColumn, savedColumn);
+        monthlySummaryTable.setMaxHeight(200);
+        monthlySummaryTable.setStyle(table_style);
+        monthlySummaryTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+        List<MonthlySummaryModel> summary = Database.getMonthsIncomesEspeneses();
+        monthlySummaryTable.getItems().addAll(summary);
+
         VBox monthlySummary = new VBox();
+        monthlySummary.getChildren().addAll(monthly_title, monthlySummaryTable);
+        monthlySummary.setAlignment(Pos.TOP_CENTER);
+
         VBox expenseBreakdown = new VBox();
         VBox netWorthGrowth = new VBox();
 
@@ -90,11 +116,13 @@ public class DashboardView extends VBox{
         main_content.add(monthlySummary, 1, 0);
         main_content.add(expenseBreakdown, 0, 1);
         main_content.add(netWorthGrowth, 1, 1);
+        main_content.setAlignment(Pos.CENTER);
+        main_content.setHgap(20);
+        main_content.setVgap(20);
 
         content.getChildren().addAll(
             title,
             main_content
-            
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);

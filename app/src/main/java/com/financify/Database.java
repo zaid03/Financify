@@ -14,6 +14,7 @@ import java.util.List;
 
 import com.financify.models.GoalSummaryModel;
 import com.financify.models.GoalsSection;
+import com.financify.models.MonthlySummaryModel;
 import com.financify.models.NetWorthModel;
 import com.financify.models.Transactions;
 
@@ -514,7 +515,37 @@ public class Database {
             return 0.0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Can't fetch total amount spent", e);
+            throw new RuntimeException("Can't fetch total of incomes", e);
+        }
+    }
+
+    //fetching last 6 months total of incomes and expenses
+    public static List<MonthlySummaryModel> getMonthsIncomesEspeneses() {
+        String sql = """
+            SELECT
+                substr(date, 1, 7) AS month,
+                SUM(CASE WHEN type = 'Income' THEN amount ELSE 0 END) AS income,
+                SUM(CASE WHEN type = 'Expense' THEN amount ELSE 0 END) AS expenses
+            FROM transactions
+            WHERE date >= date('now', '-6 months')
+            GROUP BY substr(date, 1, 7)
+            ORDER BY month;
+        """;
+
+        List<MonthlySummaryModel> monthlySummary = new ArrayList<>();
+
+        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql);) {
+            while (rs.next()) {
+                monthlySummary.add(new MonthlySummaryModel(
+                    rs.getString("month"),
+                    rs.getDouble("income"),
+                    rs.getDouble("expenses")
+                ));
+            }
+
+            return monthlySummary;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch last 6 months total of expenses and incomes", e);
         }
     }
 }
