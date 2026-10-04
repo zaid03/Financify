@@ -143,11 +143,22 @@ public class TransactionsView extends VBox{
             transaction_table.getItems().setAll(
                 Database.getSomeTransactions(yearComboBox.getValue(), monthComboBox.getValue())
             );
-            // double totalSpent = Database.getTotalSpent(yearComboBox.getValue(), monthComboBox.getValue());
-            // amountText.setText("Amount spent this month : ");
-            // amountNumber.setText(total_spent_string + " MAD");
-            // left.setText("Amount spent this month: " + leftToSpend + " MAD");
-            // limit.setText("Amount spent this month: " + limit_amount + " MAD");
+            double total_spent_update = Database.getTotalSpent();
+            String total_spent_update_string = String.valueOf(total_spent_update);
+            amountNumber.setText(total_spent_update_string + " MAD");
+
+            Integer limit_amount_update = Database.getLimit();
+            String limit_amount_update_string = String.valueOf(limit_amount_update);
+            limitNumber.setText(limit_amount_update_string + " MAD");
+            
+            Double leftToSpend_update = limit_amount_update - total_spent_update;
+            String leftToSpend_update_string = String.valueOf(leftToSpend_update);
+            leftNumber.setText(leftToSpend_update_string + " MAD");
+            if (leftToSpend_update < 0) {
+                leftNumber.setFill(Color.web("#D70652"));
+            } else {
+                leftNumber.setFill(Color.web("#4495b8"));
+            }
         };
         monthComboBox.setOnAction(e -> refrechTable.run());
         yearComboBox.setOnAction(e -> refrechTable.run());
