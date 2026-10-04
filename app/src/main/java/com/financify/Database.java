@@ -60,12 +60,19 @@ public class Database {
                 deadline TEXT
             )
         """;
+        String limit_trans = """
+            CREATE TABLE IF NOT EXISTS limit_trans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                limit_value INTEGER
+            )
+        """;
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.execute(transactionTable);
             stmt.execute(netWorthtable);
             stmt.execute(goals_section);
+            stmt.execute(limit_trans);
         } catch (SQLException e) {
-            throw new RuntimeException("Table created failed", e);
+            throw new RuntimeException("Table creation failed", e);
         }
     }
 
@@ -608,6 +615,46 @@ public class Database {
             return growth;
         } catch (SQLException e) {
             throw new RuntimeException("Can't fetch net worth growth", e);
+        }
+    }
+
+    //adding a limit for a transation
+    public static void setLimit(Integer limit) {
+        String empty = """
+            DELETE FROM limit_trans
+        """;
+
+        String fill = """
+            INSERT INTO limit_trans (limit_value) VALUES (?)        
+        """;
+        try (Connection conn = connect(); 
+            Statement stmt = conn.createStatement();
+            PreparedStatement stmt2 = conn.prepareStatement(fill);   
+        ) {
+            stmt.executeUpdate(empty);     
+            stmt2.setInt(1, limit);   
+            stmt2.executeUpdate();     
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't empty and set montnly limit", e);
+        }
+    } 
+
+    //getting the limit
+    public static Integer getLimit() {
+        String sql = """
+            SELECT * FROM limit_trans LIMIT 1
+        """;
+
+        try (Connection conn = connect(); 
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);  
+        ) {
+            while (rs.next()) {
+                return rs.getInt("limit_value");
+            }
+            return 0;   
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch montnly limit", e);
         }
     }
 }

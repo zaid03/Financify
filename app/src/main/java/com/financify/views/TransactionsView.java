@@ -23,6 +23,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 public class TransactionsView extends VBox{
@@ -52,6 +55,7 @@ public class TransactionsView extends VBox{
         yearComboBox.setValue(LocalDate.now().getYear());
 
         Button add_button = new Button("Add transaction");
+        Button Limit_button = new Button("Set limit");
         String btn_styles = """
             -fx-background-color: #156082;
             -fx-text-fill: #ffffff;
@@ -60,6 +64,7 @@ public class TransactionsView extends VBox{
             -fx-background-radius: 4;
         """;
         add_button.setStyle(btn_styles);
+        Limit_button.setStyle(btn_styles);
 
         HBox filters = new HBox(10);
         filters.setAlignment(Pos.CENTER);
@@ -68,6 +73,7 @@ public class TransactionsView extends VBox{
         BorderPane topBar = new BorderPane();
         topBar.setLeft(add_button);
         topBar.setCenter(filters);
+        topBar.setRight(Limit_button);
         
         TableView<Transactions> transaction_table = new TableView<>();
         TableColumn<Transactions, String> dateColumn = new TableColumn<>("Date");
@@ -112,14 +118,36 @@ public class TransactionsView extends VBox{
         transaction_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
         double total_spent = Database.getTotalSpent();
-        Label amount = new Label("Amount spent this month :" + total_spent + "MAD");
-        
+        String total_spent_string = String.valueOf(total_spent);
+        TextFlow amount = new TextFlow();
+        Text amountText = new Text("Amount spent this month : ");
+        Text amountNumber = new Text(total_spent_string + " MAD");
+
+        Integer limit_amount = Database.getLimit();
+        String limit_amount_string = String.valueOf(limit_amount);
+        TextFlow limit = new TextFlow();
+        Text limitText = new Text("Monthly limit : ");
+        Text limitNumber = new Text(limit_amount_string + " MAD");
+         
+        Double leftToSpend = limit_amount - total_spent;
+        String leftToSpend_string = String.valueOf(leftToSpend);
+        TextFlow left = new TextFlow();
+        Text leftText = new Text("Amount left to spend : ");
+        Text leftNumber = new Text(leftToSpend_string + " MAD");
+
+        HBox money_stat = new HBox(10);
+        money_stat.setAlignment(Pos.CENTER);
+        money_stat.getChildren().addAll(amount,  left, limit);
+
         Runnable refrechTable = () -> {
             transaction_table.getItems().setAll(
                 Database.getSomeTransactions(yearComboBox.getValue(), monthComboBox.getValue())
             );
-            double totalSpent = Database.getTotalSpent(yearComboBox.getValue(), monthComboBox.getValue());
-            amount.setText("Amount spent this month: " + totalSpent + " MAD");
+            // double totalSpent = Database.getTotalSpent(yearComboBox.getValue(), monthComboBox.getValue());
+            // amountText.setText("Amount spent this month : ");
+            // amountNumber.setText(total_spent_string + " MAD");
+            // left.setText("Amount spent this month: " + leftToSpend + " MAD");
+            // limit.setText("Amount spent this month: " + limit_amount + " MAD");
         };
         monthComboBox.setOnAction(e -> refrechTable.run());
         yearComboBox.setOnAction(e -> refrechTable.run());
@@ -128,10 +156,34 @@ public class TransactionsView extends VBox{
             -fx-font-size: 16px;
             -fx-font-weight: bold;
             -fx-text-fill: #0B3040;
+            -fx-fill: #0B3040;
         """;
-        amount.setStyle(words_styles);
-        filter.setStyle(words_styles);
-
+        String money_styles = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #4495b8;
+            -fx-fill: #4495b8;
+        """;
+        String test = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+        """;
+        amountText.setStyle(words_styles);
+        amountNumber.setStyle(money_styles);
+        amount.getChildren().addAll(amountText, amountNumber);
+        limitText.setStyle(words_styles);
+        limitNumber.setStyle(money_styles);
+        limit.getChildren().addAll(limitText, limitNumber);
+        leftText.setStyle(words_styles);
+        leftNumber.setStyle(test);
+        if (leftToSpend < 0) {
+            leftNumber.setFill(Color.web("#D70652"));
+        } else {
+            leftNumber.setFill(Color.web("#4495b8"));
+        }
+        left.getChildren().addAll(leftText, leftNumber);
+        filter.setStyle(words_styles); 
+        
         //adding a transaction grid
         DatePicker add_Date = new DatePicker();
         ComboBox<String> typeCombo = new ComboBox<>();
@@ -219,6 +271,35 @@ public class TransactionsView extends VBox{
                 amount_add.clear();
             });
 
+        });
+
+        //setting a monthly limit for spending
+        TextField limitSet = new TextField();
+        Limit_button.setOnAction(e -> {
+            GridPane add_limit_grid = new GridPane();
+            add_limit_grid.setHgap(10);
+            add_limit_grid.setVgap(10);
+            add_limit_grid.setPadding(new Insets(20));
+
+            add_limit_grid.add(new Label("Monthly limit: "), 0, 0);
+            add_limit_grid.add(limitSet, 1, 0);
+
+            Button setLimit = new Button("Add limit");
+            setLimit.setStyle(btn_styles);
+            setLimit.setAlignment(Pos.CENTER);
+            add_limit_grid.add(setLimit, 1, 5);
+
+            Stage stage = new Stage();
+            stage.setTitle("Set Limit");
+            stage.setScene(new Scene(add_limit_grid, 400, 150));
+            stage.show();
+
+            setLimit.setOnAction(f -> {
+                Database.setLimit(Integer.parseInt(limitSet.getText()));
+
+                stage.close();
+                refrechTable.run();
+            });
         });
 
         //update a transaction grid
@@ -347,7 +428,7 @@ public class TransactionsView extends VBox{
             filter,
             topBar,
             transaction_table,
-            amount
+            money_stat
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
