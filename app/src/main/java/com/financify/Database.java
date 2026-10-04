@@ -40,7 +40,8 @@ public class Database {
                 type TEXT,
                 category TEXT,
                 description TEXT,
-                amount REAL
+                amount REAL,
+                is_big_purchase INTEGER DEFAULT 0
             );
         """;
         String netWorthtable = """
@@ -95,8 +96,9 @@ public class Database {
         String fetchTransactions = """
             SELECT SUM(amount) AS total_spent
             FROM transactions
-            WHERE type = 'Expense' And
-            date >= ? AND date < ?
+            WHERE type = 'Expense' 
+            And is_big_purchase = 0 
+            And date >= ? AND date < ?
         """;
 
         try (Connection conn = connect();
@@ -164,7 +166,8 @@ public class Database {
                     rs.getString("type"),
                     rs.getString("category"),
                     rs.getString("description"),
-                    rs.getDouble("amount")
+                    rs.getDouble("amount"),
+                    rs.getInt("is_big_purchase")
                 ));
             }
 
@@ -176,9 +179,9 @@ public class Database {
     }
 
     //adding a transaction
-    public static void addTransaction(String date, String type, String category, String description, Double amount) {
+    public static void addTransaction(String date, String type, String category, String description, Double amount, Integer nature) {
         String transaction = """
-            INSERT INTO transactions (date, type, category, description, amount) VALUES (?, ?, ?, ?, ?)
+            INSERT INTO transactions (date, type, category, description, amount, is_big_purchase) VALUES (?, ?, ?, ?, ?, ?)
         """;
 
         try (Connection conn = connect();
@@ -188,6 +191,7 @@ public class Database {
                 stmt.setString(3, category);
                 stmt.setString(4, description);
                 stmt.setDouble(5, amount);
+                stmt.setInt(6, nature);
                 stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Can't add transaction", e);
@@ -195,10 +199,10 @@ public class Database {
     }
 
     //updating an existing transaction
-    public static void updateTransaction(Integer id, String date, String type, String category, String description, Double amount) {
+    public static void updateTransaction(Integer id, String date, String type, String category, String description, Double amount, Integer nature) {
         String updateTrans = """
             UPDATE transactions SET
-            date = ?, type = ?, category = ?, description = ?, amount = ? 
+            date = ?, type = ?, category = ?, description = ?, amount = ?, is_big_purchase = ?
             WHERE id = ?
         """;
         try (Connection conn = connect();
@@ -208,7 +212,8 @@ public class Database {
                 stmt.setString(3, category);
                 stmt.setString(4, description);
                 stmt.setDouble(5, amount);
-                stmt.setInt(6, id);
+                stmt.setInt(6, nature);
+                stmt.setInt(7, id);
                 stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Can't update transaction", e);

@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -79,11 +80,13 @@ public class TransactionsView extends VBox{
         TableColumn<Transactions, String> dateColumn = new TableColumn<>("Date");
         TableColumn<Transactions, String> typeColumn = new TableColumn<>("Type");
         TableColumn<Transactions, String> categoryColumn = new TableColumn<>("Category");
+        TableColumn<Transactions, String> natureColumn = new TableColumn<>("Nature");
         TableColumn<Transactions, String> descriptionColumn = new TableColumn<>("Description");
         TableColumn<Transactions, Double> amountColumn = new TableColumn<>("Amount");
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
+        natureColumn.setCellValueFactory(new PropertyValueFactory<>("isBigPurchase"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<>("description"));
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         amountColumn.setCellFactory(column -> new TableCell<>() {
@@ -101,6 +104,7 @@ public class TransactionsView extends VBox{
             dateColumn,
             typeColumn,
             categoryColumn,
+            natureColumn,
             descriptionColumn,
             amountColumn
         );
@@ -211,19 +215,20 @@ public class TransactionsView extends VBox{
             } else {
                 categoryCombo.getItems().addAll(
                     "Food",
-                    "Transport",
-                    "Internet",
-                    "Going out",
-                    "Shopping",
-                    "Entertainment",
                     "Bills",
+                    "Internet",
+                    "Shopping",
+                    "Transport",
+                    "Going out",
+                    "Big purchase",
+                    "Entertainment",
                     "Other"
                 );
             }
         });
         TextField description = new TextField();
         TextField amount_add = new TextField();
-
+        CheckBox nature_add = new CheckBox();
         add_button.setOnAction(e -> {
             GridPane add_transaction_grid = new GridPane();
             add_transaction_grid.setHgap(10);
@@ -245,10 +250,13 @@ public class TransactionsView extends VBox{
             add_transaction_grid.add(new Label("Amount: "), 0, 4);
             add_transaction_grid.add(amount_add, 1, 4);
 
+            add_transaction_grid.add(new Label("Nature: "), 0, 5);
+            add_transaction_grid.add(nature_add, 1, 5);
+
             Button addTransaction = new Button("Add");
             addTransaction.setStyle(btn_styles);
             addTransaction.setAlignment(Pos.CENTER);
-            add_transaction_grid.add(addTransaction, 1, 5);
+            add_transaction_grid.add(addTransaction, 1, 6);
 
             Stage stage = new Stage();
             stage.setTitle("Add Transaction");
@@ -256,12 +264,14 @@ public class TransactionsView extends VBox{
             stage.show();
 
             addTransaction.setOnAction(f -> {
+                int isBigPurchase = nature_add.isSelected() ? 1 : 0;
                 Database.addTransaction(
                     add_Date.getValue().toString(),
                     typeCombo.getValue(),
                     categoryCombo.getValue(),
                     description.getText(),
-                    Double.parseDouble(amount_add.getText())
+                    Double.parseDouble(amount_add.getText()),
+                    isBigPurchase
                 );
 
                 yearComboBox.setOnAction(null);
@@ -280,6 +290,7 @@ public class TransactionsView extends VBox{
                 typeCombo.getSelectionModel().clearSelection();
                 description.clear();
                 amount_add.clear();
+                nature_add.setSelected(false);
             });
 
         });
@@ -342,7 +353,7 @@ public class TransactionsView extends VBox{
         typeComboUpdate.setOnAction(e -> loadCategories.run());
         TextField descriptionUpdate = new TextField();
         TextField amount_update = new TextField();
-
+        CheckBox nature_update = new CheckBox();
         transaction_table.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
                 Transactions selected = transaction_table.getSelectionModel().getSelectedItem();
@@ -354,6 +365,7 @@ public class TransactionsView extends VBox{
                     categoryComboUpdate.setValue(selected.getCategory());
                     descriptionUpdate.setText(selected.getDescription());
                     amount_update.setText(selected.getAmount().toString());
+                    nature_update.setSelected(selected.getIsBigPurchase().equals("Big Purchase"));
 
                     GridPane update_transaction_grid = new GridPane();
                     update_transaction_grid.setHgap(10);
@@ -375,6 +387,9 @@ public class TransactionsView extends VBox{
                     update_transaction_grid.add(new Label("Amount: "), 0, 4);
                     update_transaction_grid.add(amount_update, 1, 4);
 
+                    update_transaction_grid.add(new Label("Nature: "), 0, 5);
+                    update_transaction_grid.add(nature_update, 1, 5);
+
                     Button updateButton = new Button("Update");
                     updateButton.setStyle(btn_styles);
                     updateButton.setStyle("-fx-background-color: #1f4037; -fx-text-fill: white;");
@@ -384,7 +399,7 @@ public class TransactionsView extends VBox{
                     HBox butt_update = new HBox(10);
                     butt_update.setAlignment(Pos.CENTER);
                     butt_update.getChildren().addAll(updateButton, deleteButton);
-                    update_transaction_grid.add(butt_update, 1, 5);
+                    update_transaction_grid.add(butt_update, 1, 6);
 
                     Stage stage = new Stage();
                     stage.setTitle("Update Transaction");
@@ -392,15 +407,18 @@ public class TransactionsView extends VBox{
                     stage.show();
 
                     updateButton.setOnAction(f -> {
+                        int isBigPurchase = nature_update.isSelected() ? 1 : 0;
                         Database.updateTransaction(
                             selected.getId(),
                             update_Date.getValue().toString(),
                             typeComboUpdate.getValue(),
                             categoryComboUpdate.getValue(),
                             descriptionUpdate.getText(),
-                            Double.parseDouble(amount_update.getText())
+                            Double.parseDouble(amount_update.getText()),
+                            isBigPurchase
                         );
 
+                        nature_update.setSelected(false);
                         refrechTable.run();
                         stage.close();
                     });
