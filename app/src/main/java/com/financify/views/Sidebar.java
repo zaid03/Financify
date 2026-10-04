@@ -14,12 +14,14 @@ public class Sidebar extends VBox {
         setStyle("-fx-background-color: #E2E2E2;");
 
         Button dashboardBtn = new Button("Dashboard");
+        Button bigPurchases = new Button("Major Purchases");
         Button transactionsBtn = new Button("Transactions");
         Button goalsBtn = new Button("Goals");
         Button netWorthBtn = new Button("Net Worth");
 
         dashboardBtn.setMaxWidth(Double.MAX_VALUE);
         transactionsBtn.setMaxWidth(Double.MAX_VALUE);
+        bigPurchases.setMaxWidth(Double.MAX_VALUE);
         goalsBtn.setMaxWidth(Double.MAX_VALUE);
         netWorthBtn.setMaxWidth(Double.MAX_VALUE);
 
@@ -55,6 +57,9 @@ public class Sidebar extends VBox {
         transactionsBtn.setStyle(buttonStyle);
         transactionsBtn.setOnMouseEntered(e -> transactionsBtn.setStyle(hoverStyle));
         transactionsBtn.setOnMouseExited(e -> transactionsBtn.setStyle(buttonStyle));
+        bigPurchases.setStyle(buttonStyle);
+        bigPurchases.setOnMouseEntered(e -> bigPurchases.setStyle(hoverStyle));
+        bigPurchases.setOnMouseExited(e -> bigPurchases.setStyle(buttonStyle));
         goalsBtn.setStyle(buttonStyle);
         goalsBtn.setOnMouseEntered(e -> goalsBtn.setStyle(hoverStyle));
         goalsBtn.setOnMouseExited(e -> goalsBtn.setStyle(buttonStyle));
@@ -66,6 +71,7 @@ public class Sidebar extends VBox {
         getChildren().addAll(
             dashboardBtn,
             transactionsBtn,
+            bigPurchases,
             netWorthBtn,
             goalsBtn
         );
@@ -75,6 +81,9 @@ public class Sidebar extends VBox {
         });
         transactionsBtn.setOnAction(e -> {
             root.setCenter(new TransactionsView());
+        });
+        bigPurchases.setOnAction(e -> {
+            root.setCenter(new MajorPurchasesView());
         });
         netWorthBtn.setOnAction(e -> {
             root.setCenter(new NetWorthView());

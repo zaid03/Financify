@@ -662,4 +662,72 @@ public class Database {
             throw new RuntimeException("Can't fetch montnly limit", e);
         }
     }
+
+    //selecting major purchases only
+    public static List<Transactions> getMajorPurchases() {
+        String fetchTransactions = """
+            SELECT *
+            FROM transactions
+            WHERE is_big_purchase = 1
+        """;
+
+        List<Transactions> transactions = new ArrayList<>();
+
+        try (Connection conn = connect();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(fetchTransactions);
+        ) {
+            while (rs.next()) {
+                transactions.add(new Transactions(
+                    rs.getInt("id"),
+                    rs.getString("date"),
+                    rs.getString("type"),
+                    rs.getString("category"),
+                    rs.getString("description"),
+                    rs.getDouble("amount"),
+                    rs.getInt("is_big_purchase")
+                ));
+            }
+
+            return transactions;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch major transactions", e);
+        }
+    }
+
+    //selecting total amount spent on major purchases
+    public static Double getTotalSpentMajorPurchases() {
+        LocalDate now = LocalDate.now();
+        return getTotalSpentMajorPurchases(now.getYear(), now.getMonthValue());
+    }
+    public static Double getTotalSpentMajorPurchases(Integer year, Integer month) {
+        LocalDate firstDay = LocalDate.of(year, month, 1);
+        LocalDate firstDayNextMonth = firstDay.plusMonths(1);
+
+        String fetchTransactions = """
+            SELECT SUM(amount) AS total_spent
+            FROM transactions
+            WHERE is_big_purchase = 1
+            And date >= ? AND date < ?
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(fetchTransactions)) {
+
+            stmt.setString(1, firstDay.toString());
+            stmt.setString(2, firstDayNextMonth.toString());
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("total_spent");
+            }
+
+            return 0.0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch total amount spent major purchases", e);
+        }
+    }
 }

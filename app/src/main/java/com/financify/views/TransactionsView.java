@@ -17,6 +17,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -97,6 +98,20 @@ public class TransactionsView extends VBox{
                     setText(null);
                 } else {
                     setText(String.format("%.2f MAD", amount));
+                }
+            }
+        });
+        transaction_table.setRowFactory(tv -> new TableRow<Transactions>() {
+            @Override
+            protected void updateItem(Transactions transaction, boolean empty) {
+                super.updateItem(transaction, empty);
+
+                if (!empty && transaction != null &&
+                    transaction.getIsBigPurchase().equals("Big Purchase")) {
+
+                    setStyle("-fx-background-color: #ffe0e0;");
+                } else {
+                    setStyle("");
                 }
             }
         });
@@ -340,12 +355,13 @@ public class TransactionsView extends VBox{
             } else {
                 categoryComboUpdate.getItems().addAll(
                     "Food",
-                    "Transport",
-                    "Internet",
-                    "Going out",
-                    "Shopping",
-                    "Entertainment",
                     "Bills",
+                    "Internet",
+                    "Shopping",
+                    "Transport",
+                    "Going out",
+                    "Big purchase",
+                    "Entertainment",
                     "Other"
                 );
             }
