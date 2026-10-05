@@ -18,12 +18,14 @@ public class Sidebar extends VBox {
         Button transactionsBtn = new Button("Transactions");
         Button goalsBtn = new Button("Goals");
         Button netWorthBtn = new Button("Net Worth");
+        Button loansBtn = new Button("Loans");
 
         dashboardBtn.setMaxWidth(Double.MAX_VALUE);
         transactionsBtn.setMaxWidth(Double.MAX_VALUE);
         bigPurchases.setMaxWidth(Double.MAX_VALUE);
         goalsBtn.setMaxWidth(Double.MAX_VALUE);
         netWorthBtn.setMaxWidth(Double.MAX_VALUE);
+        loansBtn.setMaxWidth(Double.MAX_VALUE);
 
         String buttonStyle = """
             -fx-background-color: transparent;
@@ -66,6 +68,9 @@ public class Sidebar extends VBox {
         netWorthBtn.setStyle(buttonStyle);
         netWorthBtn.setOnMouseEntered(e -> netWorthBtn.setStyle(hoverStyle));
         netWorthBtn.setOnMouseExited(e -> netWorthBtn.setStyle(buttonStyle));
+        loansBtn.setStyle(buttonStyle);
+        loansBtn.setOnMouseEntered(e -> loansBtn.setStyle(hoverStyle));
+        loansBtn.setOnMouseExited(e -> loansBtn.setStyle(buttonStyle));
 
         setAlignment(Pos.CENTER);
         getChildren().addAll(
@@ -73,6 +78,7 @@ public class Sidebar extends VBox {
             transactionsBtn,
             bigPurchases,
             netWorthBtn,
+            loansBtn,
             goalsBtn
         );
 
@@ -87,6 +93,9 @@ public class Sidebar extends VBox {
         });
         netWorthBtn.setOnAction(e -> {
             root.setCenter(new NetWorthView());
+        });
+        loansBtn.setOnAction(e -> {
+            root.setCenter(new LoansView());
         });
         goalsBtn.setOnAction(e -> {
             root.setCenter(new GoalsView());

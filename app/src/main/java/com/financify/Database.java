@@ -58,7 +58,9 @@ public class Database {
                 goal TEXT UNIQUE,
                 target INTEGER,
                 current INTEGER
-                deadline TEXT
+                deadline TEXT,
+                is_active INTEGER DEFAULT 0,
+                completionDate TEXT
             )
         """;
         String limit_trans = """
@@ -67,11 +69,27 @@ public class Database {
                 limit_value INTEGER
             )
         """;
+        String loans = """
+            CREATE TABLE IF NOT EXISTS loans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT UNIQUE,
+                description TEXT,
+                Source TEXT
+                amount Double,
+                Remaining Double,
+                Monthly Double,
+                Start_date TEXT,
+                Due_date TEXT,
+                is_active INTEGER DEFAULT 0,
+                completionDate TEXT
+            )         
+        """;
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.execute(transactionTable);
             stmt.execute(netWorthtable);
             stmt.execute(goals_section);
             stmt.execute(limit_trans);
+            stmt.execute(loans);
         } catch (SQLException e) {
             throw new RuntimeException("Table creation failed", e);
         }
