@@ -383,7 +383,7 @@ public class Database {
     //fetching goals
     public static List<GoalsSection> getGoals() {
         String fetch_sql = """
-            SELECT * FROM goals_section
+            SELECT * FROM goals_section WHERE is_active = 0
         """;
 
         List<GoalsSection> goals = new ArrayList<>();
@@ -410,9 +410,9 @@ public class Database {
     public static GoalSummaryModel fetchGoalsSummary() {
         String summary_sql = """
             SELECT
-                SUM(target) AS totalTarget,
-                SUM(current) AS totalCurrent,
-                SUM(target - current) AS totalRemaining
+                SUM(CASE WHEN is_active = 0 THEN target ELSE 0 END) AS totalTarget,
+                SUM(CASE WHEN is_active = 0 THEN current ELSE 0 END) AS totalCurrent,
+                SUM(CASE WHEN is_active = 0 THEN target - current ELSE 0 END) AS totalRemaining
             FROM goals_section;
         """;
         try (Connection conn = connect();
@@ -480,6 +480,22 @@ public class Database {
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Can't update goal", e);
+        }
+    }
+
+    //setting a goal as completed
+    public static void completeGoal(Integer id) {
+        String complete_sql = """
+            UPDATE goals_section 
+            SET is_active = 1, completionDate = date('now') 
+            WHERE id = ?
+        """;
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(complete_sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't set goal as completed", e);
         }
     }
 

@@ -24,6 +24,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 public class GoalsView extends VBox{
@@ -54,12 +56,18 @@ public class GoalsView extends VBox{
             -fx-font-weight: bold;
             -fx-text-fill: #0B3040;
         """;
+        String money_styles = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #4495b8;
+            -fx-fill: #4495b8;
+        """;
         add_button.setStyle(btn_styles);
 
-        Label savings = new Label("Savings status: ");
+        Label savings = new Label("Net worth after goals: ");
         savings.setStyle(words_styles);
         GoalSummaryModel stats = Database.fetchGoalsSummary();
-        Double net_Worth = Database.getNetWorthLatest(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        Double net_Worth = Database.getNetWorthLatest(LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM")));
         Integer total_target = stats.getTotalTarget();
         Double is_enouph = net_Worth - total_target;
         Label status = new Label(is_enouph.toString());
@@ -134,7 +142,7 @@ public class GoalsView extends VBox{
 
         List<GoalsSection> goals = Database.getGoals();
         goals_table.getItems().addAll(goals);
-        goals_table.setMinHeight(350);
+        goals_table.setMaxHeight(200);
         String table_style = """
             -fx-background-color: white;
             -fx-border-color: #D1D5DB;
@@ -145,16 +153,35 @@ public class GoalsView extends VBox{
         goals_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
         GoalSummaryModel total_stats = Database.fetchGoalsSummary();
+
         Integer total_saving_amount = total_stats.getTotalTarget();
+        String total_saving_amount_string = String.valueOf(total_saving_amount);
+        TextFlow total_saving = new TextFlow();
+        Text total_saving_text = new Text("Total Savings Goal: ");
+        Text total_saving_number = new Text(total_saving_amount + " MAD");
+        total_saving_text.setStyle(phrases_styles);
+        total_saving_number.setStyle(money_styles);
+        total_saving.getChildren().addAll(total_saving_text, total_saving_number);
+
         Integer total_saved_amount = total_stats.getTotalCurrent();
+        String total_saved_amount_string = String.valueOf(total_saved_amount);
+        TextFlow total_saved = new TextFlow();
+        Text total_saved_text = new Text("Currently Saved: ");
+        Text total_saved_number = new Text(total_saved_amount + " MAD");
+        total_saved_text.setStyle(phrases_styles);
+        total_saved_number.setStyle(money_styles);
+        total_saved.getChildren().addAll(total_saved_text, total_saved_number);
+
         Integer total_remaining_amount = total_stats.getTotalRemaining();
-        Label total_saving = new Label("Total Savings Goal: " + total_saving_amount + " MAD");
-        Label total_saved = new Label("Currently Saved: " + total_saved_amount + " MAD");
-        Label total_remaining = new Label("Remaining to Save: " + total_remaining_amount + " MAD");
-        total_saving.setStyle(phrases_styles);
-        total_saved.setStyle(phrases_styles);
-        total_remaining.setStyle(phrases_styles);
-        VBox total_totals = new VBox();
+        String total_remaining_amount_string = String.valueOf(total_remaining_amount);
+        TextFlow total_remaining = new TextFlow();
+        Text total_remaining_text = new Text("Remaining to Save: ");
+        Text total_remaining_number = new Text(total_remaining_amount_string + " MAD");
+        total_remaining_text.setStyle(phrases_styles);
+        total_remaining_number.setStyle(money_styles);
+        total_remaining.getChildren().addAll(total_remaining_text, total_remaining_number);
+
+        HBox total_totals = new HBox(15);
         total_totals.setAlignment(Pos.CENTER);
         total_totals.getChildren().addAll(total_saving, total_saved, total_remaining);
 
@@ -170,17 +197,17 @@ public class GoalsView extends VBox{
             setStatusColor(status, is_enouphUpdate);
 
             GoalSummaryModel total_statsUpdate = Database.fetchGoalsSummary();
-            total_saving.setText(
-                "Total Savings Goal: " + total_statsUpdate.getTotalTarget() + " MAD"
-            );
+            String total_saving_amount_string_second = String.valueOf(total_statsUpdate.getTotalTarget());
+            total_saving_text.setText("Total Savings Goal: ");
+            total_saving_number.setText(total_saving_amount_string_second + " MAD");
 
-            total_saved.setText(
-                "Currently Saved: " + total_statsUpdate.getTotalCurrent() + " MAD"
-            );
+            String total_saved_amount_string_second = String.valueOf(total_statsUpdate.getTotalCurrent());
+            total_saved_text.setText("Currently Saved: ");
+            total_saved_number.setText(total_saved_amount_string_second + " MAD");
 
-            total_remaining.setText(
-                "Remaining to Save: " + total_statsUpdate.getTotalRemaining() + " MAD"
-            );
+            String total_remaining_amount_string_second = String.valueOf(total_statsUpdate.getTotalRemaining());
+            total_remaining_text.setText("Remaining to Save: ");
+            total_remaining_number.setText(total_remaining_amount_string_second + " MAD");
         };
 
         //add goal grid
@@ -269,12 +296,15 @@ public class GoalsView extends VBox{
                     Button updateButton = new Button("Update");
                     updateButton.setStyle(btn_styles);
                     updateButton.setStyle("-fx-background-color: #1f4037; -fx-text-fill: white;");
+                    Button CompleteButton = new Button("Completed");
+                    CompleteButton.setStyle(btn_styles);
+                    CompleteButton.setStyle("-fx-background-color: #156082; -fx-text-fill: white;");
                     Button deleteButton = new Button("Delete");
                     deleteButton.setStyle(btn_styles);
                     deleteButton.setStyle("-fx-background-color: #D70652; -fx-text-fill: white;");
                     HBox butt_update = new HBox(10);
                     butt_update.setAlignment(Pos.CENTER);
-                    butt_update.getChildren().addAll(updateButton, deleteButton);
+                    butt_update.getChildren().addAll(updateButton, CompleteButton, deleteButton);
                     update_goals_grid.add(butt_update, 1, 5);
 
                     Stage stage = new Stage();
@@ -291,6 +321,13 @@ public class GoalsView extends VBox{
                             Integer.parseInt(currentUpdate.getText()),
                             deadlineToSend
                         );
+
+                        stage.hide();
+                        refreshContent.run();
+                    });
+
+                    CompleteButton.setOnAction(a -> {
+                        Database.completeGoal(selected.getId());
 
                         stage.hide();
                         refreshContent.run();
