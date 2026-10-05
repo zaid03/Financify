@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.financify.Database;
-import com.financify.models.GoalSummaryModel;
 import com.financify.models.Loans;
 
 import javafx.geometry.Insets;
@@ -334,6 +333,240 @@ public class LoansView extends VBox {
                 due_date.setValue(null);
                 refreshContent.run();
             });
+        });
+
+        //update and delete and status on uncompleted loans
+        TextField name_add_update = new TextField();
+        TextField descr_add_update = new TextField();
+        TextField source_add_update = new TextField();
+        TextField amount_add_update = new TextField();
+        TextField remaining_add_update = new TextField();
+        TextField moothly_add_update = new TextField();
+        DatePicker start_date_update = new DatePicker();
+        DatePicker due_date_update = new DatePicker();
+        loans_table.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                Loans selected = loans_table.getSelectionModel().getSelectedItem();
+
+                if (selected != null) {
+                    name_add_update.setText(selected.getName());
+                    descr_add_update.setText(selected.getDescription());
+                    source_add_update.setText(selected.getSource());
+                    amount_add_update.setText(String.valueOf(selected.getAmount()));
+                    remaining_add_update.setText(String.valueOf(selected.getRemaining()));
+                    moothly_add_update.setText(String.valueOf(selected.getMonthly()));
+                    start_date_update.setValue(LocalDate.parse(selected.getStart_date()));
+                    due_date_update.setValue(LocalDate.parse(selected.getDue_date()));
+
+                    GridPane update_loan_grid = new GridPane();
+                    update_loan_grid.setHgap(10);
+                    update_loan_grid.setVgap(10);
+                    update_loan_grid.setPadding(new Insets(20));
+
+                    update_loan_grid.add(new Label("Name"), 0, 0);
+                    update_loan_grid.add(name_add_update, 1, 0);
+
+                    update_loan_grid.add(new Label("Description"), 0, 1);
+                    update_loan_grid.add(descr_add_update, 1, 1);
+
+                    update_loan_grid.add(new Label("Source"), 0, 2);
+                    update_loan_grid.add(source_add_update, 1, 2);
+
+                    update_loan_grid.add(new Label("Amount"), 0, 3);
+                    update_loan_grid.add(amount_add_update, 1, 3);
+                    
+                    update_loan_grid.add(new Label("Remaining"), 0, 4);
+                    update_loan_grid.add(remaining_add_update, 1, 4);
+
+                    update_loan_grid.add(new Label("Monthly"), 0, 5);
+                    update_loan_grid.add(moothly_add_update, 1, 5);
+
+                    update_loan_grid.add(new Label("Start date"), 0, 6);
+                    update_loan_grid.add(start_date_update, 1, 6);
+
+                    update_loan_grid.add(new Label("Due date"), 0, 7);
+                    update_loan_grid.add(due_date_update, 1, 7);
+
+
+                    Button updateButton = new Button("Update");
+                    updateButton.setStyle(btn_styles);
+                    updateButton.setStyle("-fx-background-color: #1f4037; -fx-text-fill: white;");
+                    Button CompleteButton = new Button("Completed");
+                    CompleteButton.setStyle(btn_styles);
+                    CompleteButton.setStyle("-fx-background-color: #156082; -fx-text-fill: white;");
+                    Button deleteButton = new Button("Delete");
+                    deleteButton.setStyle(btn_styles);
+                    deleteButton.setStyle("-fx-background-color: #D70652; -fx-text-fill: white;");
+                    HBox butt_update = new HBox(10);
+                    butt_update.setAlignment(Pos.CENTER);
+                    butt_update.getChildren().addAll(updateButton, CompleteButton, deleteButton);
+                    update_loan_grid.add(butt_update, 1, 8);
+
+                    Stage stage = new Stage();
+                    stage.setTitle("Update loan");
+                    stage.setScene(new Scene(update_loan_grid, 400, 400));
+                    stage.show();
+
+                    updateButton.setOnAction(f -> {
+                        String startDate = start_date_update.getValue().toString();
+                        String deadlineToSend = due_date_update.getValue().toString();
+                        Database.updateLoan(
+                            selected.getId(),
+                            name_add_update.getText(),
+                            descr_add_update.getText(),
+                            source_add_update.getText(),
+                            Double.parseDouble(amount_add_update.getText()),
+                            Double.parseDouble(remaining_add_update.getText()),
+                            Double.parseDouble(moothly_add_update.getText()),
+                            startDate,
+                            deadlineToSend
+                        );
+
+                        name_add_update.clear();
+                        descr_add_update.clear();
+                        source_add_update.clear();
+                        amount_add_update.clear();
+                        remaining_add_update.clear();
+                        moothly_add_update.clear();
+                        start_date.setValue(null);
+                        due_date.setValue(null);
+                        refreshContent.run();
+                        stage.hide();
+                        refreshContent.run();
+                    });
+
+                    CompleteButton.setOnAction(a -> {
+                        Database.changeStatusLoan(1, selected.getId());
+
+                        stage.hide();
+                        refreshContent.run();
+                    });
+
+                    deleteButton.setOnAction(a -> {
+                        Database.deleteLoan(selected.getId());
+
+                        stage.hide();
+                        refreshContent.run();
+                    });
+                }
+            }
+        });
+
+        //update and delete and status on completed loans
+        TextField name_add_update_completed = new TextField();
+        TextField descr_add_update_completed = new TextField();
+        TextField source_add_update_completed = new TextField();
+        TextField amount_add_update_completed = new TextField();
+        TextField remaining_add_update_completed = new TextField();
+        TextField moothly_add_update_completed = new TextField();
+        DatePicker start_date_update_completed = new DatePicker();
+        DatePicker due_date_update_completed = new DatePicker();
+        completedLoans_table.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                Loans selected = completedLoans_table.getSelectionModel().getSelectedItem();
+
+                if (selected != null) {
+                    name_add_update_completed.setText(selected.getName());
+                    descr_add_update_completed.setText(selected.getDescription());
+                    source_add_update_completed.setText(selected.getSource());
+                    amount_add_update_completed.setText(String.valueOf(selected.getAmount()));
+                    remaining_add_update_completed.setText(String.valueOf(selected.getRemaining()));
+                    moothly_add_update_completed.setText(String.valueOf(selected.getMonthly()));
+                    start_date_update_completed.setValue(LocalDate.parse(selected.getStart_date()));
+                    due_date_update_completed.setValue(LocalDate.parse(selected.getDue_date()));
+
+                    GridPane update_loan_grid = new GridPane();
+                    update_loan_grid.setHgap(10);
+                    update_loan_grid.setVgap(10);
+                    update_loan_grid.setPadding(new Insets(20));
+
+                    update_loan_grid.add(new Label("Name"), 0, 0);
+                    update_loan_grid.add(name_add_update_completed, 1, 0);
+
+                    update_loan_grid.add(new Label("Description"), 0, 1);
+                    update_loan_grid.add(descr_add_update_completed, 1, 1);
+
+                    update_loan_grid.add(new Label("Source"), 0, 2);
+                    update_loan_grid.add(source_add_update_completed, 1, 2);
+
+                    update_loan_grid.add(new Label("Amount"), 0, 3);
+                    update_loan_grid.add(amount_add_update_completed, 1, 3);
+                    
+                    update_loan_grid.add(new Label("Remaining"), 0, 4);
+                    update_loan_grid.add(remaining_add_update_completed, 1, 4);
+
+                    update_loan_grid.add(new Label("Monthly"), 0, 5);
+                    update_loan_grid.add(moothly_add_update_completed, 1, 5);
+
+                    update_loan_grid.add(new Label("Start date"), 0, 6);
+                    update_loan_grid.add(start_date_update_completed, 1, 6);
+
+                    update_loan_grid.add(new Label("Due date"), 0, 7);
+                    update_loan_grid.add(due_date_update_completed, 1, 7);
+
+
+                    Button updateButton = new Button("Update");
+                    updateButton.setStyle(btn_styles);
+                    updateButton.setStyle("-fx-background-color: #1f4037; -fx-text-fill: white;");
+                    Button UncmpleteButton = new Button("Uncomplete");
+                    UncmpleteButton.setStyle(btn_styles);
+                    UncmpleteButton.setStyle("-fx-background-color: #156082; -fx-text-fill: white;");
+                    Button deleteButton = new Button("Delete");
+                    deleteButton.setStyle(btn_styles);
+                    deleteButton.setStyle("-fx-background-color: #D70652; -fx-text-fill: white;");
+                    HBox butt_update = new HBox(10);
+                    butt_update.setAlignment(Pos.CENTER);
+                    butt_update.getChildren().addAll(updateButton, UncmpleteButton, deleteButton);
+                    update_loan_grid.add(butt_update, 1, 8);
+
+                    Stage stage = new Stage();
+                    stage.setTitle("Update Loan");
+                    stage.setScene(new Scene(update_loan_grid, 400, 400));
+                    stage.show();
+
+                    updateButton.setOnAction(f -> {
+                        String startDate = start_date_update_completed.getValue().toString();
+                        String deadlineToSend = due_date_update_completed.getValue().toString();
+                        Database.updateLoan(
+                            selected.getId(),
+                            name_add_update_completed.getText(),
+                            descr_add_update_completed.getText(),
+                            source_add_update_completed.getText(),
+                            Double.parseDouble(amount_add_update_completed.getText()),
+                            Double.parseDouble(remaining_add_update_completed.getText()),
+                            Double.parseDouble(moothly_add_update_completed.getText()),
+                            startDate,
+                            deadlineToSend
+                        );
+
+                        name_add_update_completed.clear();
+                        descr_add_update_completed.clear();
+                        source_add_update_completed.clear();
+                        amount_add_update_completed.clear();
+                        remaining_add_update_completed.clear();
+                        moothly_add_update_completed.clear();
+                        start_date.setValue(null);
+                        due_date.setValue(null);
+                        refreshContent.run();
+                        stage.hide();
+                        refreshContent.run();
+                    });
+
+                    UncmpleteButton.setOnAction(a -> {
+                        Database.changeStatusLoan(0, selected.getId());
+
+                        stage.hide();
+                        refreshContent.run();
+                    });
+
+                    deleteButton.setOnAction(a -> {
+                        Database.deleteLoan(selected.getId());
+
+                        stage.hide();
+                        refreshContent.run();
+                    });
+                }
+            }
         });
 
         content.getChildren().addAll(

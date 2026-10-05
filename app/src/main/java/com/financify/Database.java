@@ -960,15 +960,77 @@ public class Database {
                 stmt.setString(1, name);
                 stmt.setString(2, description);
                 stmt.setString(3, Source);
-                stmt.setString(4, description);
-                stmt.setDouble(5, amount);
-                stmt.setDouble(6, Remaining);
+                stmt.setDouble(4, amount);
+                stmt.setDouble(5, Remaining);
                 stmt.setDouble(6, Monthly);
-                stmt.setString(6, Start_date);
-                stmt.setString(6, Due_date);
+                stmt.setString(7, Start_date);
+                stmt.setString(8, Due_date);
                 stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Can't add loan", e);
         }
     }
+
+    //updating a loan
+    public static void updateLoan(Integer id, String  name, String  description, String Source, Double amount, Double Remaining, Double Monthly, String Start_date, String Due_date) {
+        String sql = """
+            UPDATE loans SET 
+                name = ?, description = ?, Source = ?, amount = ?, Remaining = ?, Monthly = ?, Start_date = ?, Due_date = ?
+            WHERE id = ?
+        """;
+        try(Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
+                stmt.setString(1, name);
+                stmt.setString(2, description);
+                stmt.setString(3, Source);
+                stmt.setDouble(4, amount);
+                stmt.setDouble(5, Remaining);
+                stmt.setDouble(6, Monthly);
+                stmt.setString(7, Start_date);
+                stmt.setString(8, Due_date);
+                stmt.setLong(9, id);
+                stmt.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Can't update loan", e);
+        }
+    }
+
+    //deleting a loan
+    public static void deleteLoan(Integer id) {
+        String sql = """
+            delete from loans where id = ?
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
+                stmt.setInt(1, id);
+                stmt.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Can't update loan", e);
+        }
+    }
+
+    //setting a loan as completed or incompleted
+    public static void changeStatusLoan(Integer is_active, Integer id) {
+        String completionDate;
+        if (is_active == 1) {
+            completionDate = String.valueOf(LocalDate.now());
+        } else {
+            completionDate = null;
+        }
+        String sql = """
+            update loans set is_active = ?, completionDate = ? where id = ?
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, is_active);
+                stmt.setString(2, completionDate);
+                stmt.setInt(3, id);
+                stmt.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Can't change status loan", e);
+        }
+    }
+
 }
