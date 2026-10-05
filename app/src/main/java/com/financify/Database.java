@@ -800,7 +800,7 @@ public class Database {
         }
     }
 
-    //selecting total amount spent on major expenses
+    //selecting total amount spent on major expenses for a period and for all time
     public static Double getTotalSpentMajorPurchases() {
         LocalDate now = LocalDate.now();
         return getTotalSpentMajorPurchases(now.getYear(), now.getMonthValue());
@@ -821,6 +821,30 @@ public class Database {
 
             stmt.setString(1, firstDay.toString());
             stmt.setString(2, firstDayNextMonth.toString());
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getDouble("total_spent");
+            }
+
+            return 0.0;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch total amount spent major expenses", e);
+        }
+    }
+
+    public static Double getAllTotalSpentMajorPurchases() {
+        String fetchMajorExpenses = """
+            SELECT SUM(amount) AS total_spent
+            FROM transactions
+            WHERE is_big_purchase = 1
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(fetchMajorExpenses)) {
+
 
             ResultSet rs = stmt.executeQuery();
 
