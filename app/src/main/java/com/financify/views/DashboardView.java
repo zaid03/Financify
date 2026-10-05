@@ -13,6 +13,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -54,7 +55,7 @@ public class DashboardView extends VBox{
         metricColumn.setCellValueFactory(new PropertyValueFactory<>("Metric"));
         valueColumn.setCellValueFactory(new PropertyValueFactory<>("Value"));
         currentSituationTable.getColumns().addAll(metricColumn, valueColumn);
-        currentSituationTable.setMaxHeight(200);
+        currentSituationTable.setMaxHeight(245);
         currentSituationTable.setStyle(table_style);
         currentSituationTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
@@ -72,13 +73,16 @@ public class DashboardView extends VBox{
         if (totalEarned > 0) {
             savingRate = (montlySaving / totalEarned) * 100;
         }
-
+        double totalSpentMajor = Database.getTotalSpentMajorPurchases();
+        Double cashFlow = totalEarned - (totalSpentMajor + totalSpent);
         currentSituationTable.getItems().addAll(
             new DashboardStat("Current Savings", selfMoney + " MAD"),
-            new DashboardStat("Monthly Salary",  totalEarned + " MAD"),
+            new DashboardStat("Monthly Earning",  totalEarned + " MAD"),
             new DashboardStat("Current Loans", currentLoans + " MAD"),
-            new DashboardStat("This Month's Expenses", totalSpent + " MAD"),
-            new DashboardStat("This Month's Savings", montlySaving + " MAD"),
+            new DashboardStat("Month's Expenses", totalSpent + " MAD"),
+            new DashboardStat("Month's Savings", montlySaving + " MAD"),
+            new DashboardStat("Month's Major Expenses", totalSpentMajor + " MAD"),
+            new DashboardStat("Cash Flow", cashFlow + " MAD"),
             new DashboardStat("Savings Rate", savingRate + " %")
         );
 
@@ -91,15 +95,100 @@ public class DashboardView extends VBox{
 
         TableView<MonthlySummaryModel> monthlySummaryTable = new TableView<>();
         TableColumn<MonthlySummaryModel, String> monthColumn = new TableColumn<>("Month");
-        TableColumn<MonthlySummaryModel, String> incomeColumn = new TableColumn<>("Income");
-        TableColumn<MonthlySummaryModel, String> espensesColumn = new TableColumn<>("Expenses");
-        TableColumn<MonthlySummaryModel, String> savedColumn = new TableColumn<>("Saved");
+        TableColumn<MonthlySummaryModel, Double> incomeColumn = new TableColumn<>("Income");
+        TableColumn<MonthlySummaryModel, Double> espensesColumn = new TableColumn<>("Expenses");
+        TableColumn<MonthlySummaryModel, Double> espensesMajorColumn = new TableColumn<>("Major Expenses");
+        TableColumn<MonthlySummaryModel, Double> cashFlowColumn = new TableColumn<>("Cash Flow");
+        TableColumn<MonthlySummaryModel, Double> savedColumn = new TableColumn<>("Saved");
+        TableColumn<MonthlySummaryModel, Double> monthRateColumn = new TableColumn<>("Month Rate");
+        TableColumn<MonthlySummaryModel, Double> globalRateColumn = new TableColumn<>("Global Rate");
         monthColumn.setCellValueFactory(new PropertyValueFactory<>("month"));
         incomeColumn.setCellValueFactory(new PropertyValueFactory<>("income"));
+        incomeColumn.setCellFactory(column -> new TableCell<>() {
+        @Override
+        protected void updateItem(Double income, boolean empty) {
+            super.updateItem(income, empty);
+                if (empty || income == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f MAD", income));
+                }
+            }
+        });
         espensesColumn.setCellValueFactory(new PropertyValueFactory<>("expenses"));
+        espensesColumn.setCellFactory(column -> new TableCell<>() {
+        @Override
+        protected void updateItem(Double expenses, boolean empty) {
+            super.updateItem(expenses, empty);
+                if (empty || expenses == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f MAD", expenses));
+                }
+            }
+        });
+        espensesMajorColumn.setCellValueFactory(new PropertyValueFactory<>("majorExpenses"));
+        espensesMajorColumn.setCellFactory(column -> new TableCell<>() {
+        @Override
+        protected void updateItem(Double majorExpenses, boolean empty) {
+            super.updateItem(majorExpenses, empty);
+                if (empty || majorExpenses == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f MAD", majorExpenses));
+                }
+            }
+        });
+        cashFlowColumn.setCellValueFactory(new PropertyValueFactory<>("cashFlow"));
+        cashFlowColumn.setCellFactory(column -> new TableCell<>() {
+        @Override
+        protected void updateItem(Double cashFlow, boolean empty) {
+            super.updateItem(cashFlow, empty);
+                if (empty || cashFlow == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f MAD", cashFlow));
+                }
+            }
+        });
         savedColumn.setCellValueFactory(new PropertyValueFactory<>("saved"));
-        monthlySummaryTable.getColumns().addAll(monthColumn, incomeColumn, espensesColumn, savedColumn);
-        monthlySummaryTable.setMaxHeight(200);
+        savedColumn.setCellFactory(column -> new TableCell<>() {
+        @Override
+        protected void updateItem(Double saved, boolean empty) {
+            super.updateItem(saved, empty);
+                if (empty || saved == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f MAD", saved));
+                }
+            }
+        });
+        monthRateColumn.setCellValueFactory(new PropertyValueFactory<>("savingRate"));
+        monthRateColumn.setCellFactory(column -> new TableCell<>() {
+        @Override
+        protected void updateItem(Double savingRate, boolean empty) {
+            super.updateItem(savingRate, empty);
+                if (empty || savingRate == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f %%", savingRate));
+                }
+            }
+        });
+        globalRateColumn.setCellValueFactory(new PropertyValueFactory<>("globalRate"));
+        globalRateColumn.setCellFactory(column -> new TableCell<>() {
+        @Override
+        protected void updateItem(Double globalRate, boolean empty) {
+            super.updateItem(globalRate, empty);
+                if (empty || globalRate == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f %%", globalRate));
+                }
+            }
+        });
+        monthlySummaryTable.getColumns().addAll(monthColumn, incomeColumn, espensesColumn, espensesMajorColumn, cashFlowColumn, savedColumn, monthRateColumn, globalRateColumn);
+        monthlySummaryTable.setMaxHeight(220);
         monthlySummaryTable.setStyle(table_style);
         monthlySummaryTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
@@ -119,7 +208,7 @@ public class DashboardView extends VBox{
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("category"));
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         breakdown_table.getColumns().addAll(categoryColumn, amountColumn);
-        breakdown_table.setMaxHeight(200);
+        breakdown_table.setMaxHeight(245);
         breakdown_table.setStyle(table_style);
         breakdown_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
@@ -139,7 +228,7 @@ public class DashboardView extends VBox{
         monthGrowthColumn.setCellValueFactory(new PropertyValueFactory<>("month"));
         savingsColumn.setCellValueFactory(new PropertyValueFactory<>("netWorth"));
         netWorthGrowrthTable.getColumns().addAll(monthGrowthColumn, savingsColumn);
-        netWorthGrowrthTable.setMaxHeight(200);
+        netWorthGrowrthTable.setMaxHeight(245);
         netWorthGrowrthTable.setStyle(table_style);
         netWorthGrowrthTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
@@ -152,9 +241,10 @@ public class DashboardView extends VBox{
 
         GridPane main_content = new GridPane();
         main_content.add(currentSituation, 0, 0);
-        main_content.add(monthlySummary, 1, 0);
-        main_content.add(expenseBreakdown, 0, 1);
-        main_content.add(netWorthGrowth, 1, 1);
+        main_content.add(expenseBreakdown, 1, 0);
+        main_content.add(netWorthGrowth, 2, 0);
+        main_content.add(monthlySummary, 0, 1);
+        main_content.setColumnSpan(monthlySummary, 3);
         main_content.setAlignment(Pos.CENTER);
         main_content.setHgap(20);
         main_content.setVgap(20);

@@ -539,13 +539,32 @@ public class Database {
             SELECT
                 substr(date, 1, 7) AS month,
                 SUM(CASE WHEN type = 'Income' THEN amount ELSE 0 END) AS income,
-                SUM(CASE WHEN type = 'Expense' THEN amount ELSE 0 END) AS expenses
+                SUM(CASE WHEN is_big_purchase = 0 And type <> 'Income' THEN amount ELSE 0 END) AS expenses,
+                SUM(CASE WHEN is_big_purchase = 1 And type <> 'Income' THEN amount ELSE 0 END) AS majorExpenses,
+                CASE
+                WHEN SUM(CASE WHEN type = 'Income' THEN amount ELSE 0 END) = 0 THEN 0
+                ELSE (
+                    (
+                        SUM(CASE WHEN type = 'Income' THEN amount ELSE 0 END) -
+                        SUM(CASE WHEN is_big_purchase = 0 AND type <> 'Income' THEN amount ELSE 0 END)
+                    ) / SUM(CASE WHEN type = 'Income' THEN amount ELSE 0 END)
+                ) * 100
+                END AS savingRate,
+            CASE
+                WHEN SUM(CASE WHEN type = 'Income' THEN amount ELSE 0 END) = 0 THEN 0
+                ELSE (
+                    (
+                        SUM(CASE WHEN type = 'Income' THEN amount ELSE 0 END) -
+                        SUM(CASE WHEN is_big_purchase = 0 AND type <> 'Income' THEN amount ELSE 0 END) -
+                        SUM(CASE WHEN is_big_purchase = 1 AND type <> 'Income' THEN amount ELSE 0 END)
+                    ) / SUM(CASE WHEN type = 'Income' THEN amount ELSE 0 END)
+                ) * 100
+                END AS globalRate
             FROM transactions
-            WHERE date >= date('now', '-6 months')
+            WHERE date >= date('now', '-8 months')
             GROUP BY substr(date, 1, 7)
             ORDER BY month;
         """;
-
         List<MonthlySummaryModel> monthlySummary = new ArrayList<>();
 
         try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql);) {
@@ -553,7 +572,10 @@ public class Database {
                 monthlySummary.add(new MonthlySummaryModel(
                     rs.getString("month"),
                     rs.getDouble("income"),
-                    rs.getDouble("expenses")
+                    rs.getDouble("expenses"),
+                    rs.getDouble("majorExpenses"),
+                    rs.getDouble("savingRate"),
+                    rs.getDouble("globalRate")
                 ));
             }
 
