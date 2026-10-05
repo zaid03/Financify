@@ -10,19 +10,25 @@ import com.financify.models.Loans;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 
 public class LoansView extends VBox {
     public LoansView() {
@@ -252,6 +258,83 @@ public class LoansView extends VBox {
             monthlyText.setText("Monthly payments : ");
             monthlyNumber.setText(String.format("%.2f mad", monthlyUpdate));        
         };
+
+        //add loan grid
+        TextField name_add = new TextField();
+        TextField descr_add = new TextField();
+        TextField source_add = new TextField();
+        TextField amount_add = new TextField();
+        TextField remaining_add = new TextField();
+        TextField moothly_add = new TextField();
+        DatePicker start_date = new DatePicker();
+        DatePicker due_date = new DatePicker();
+        add_button.setOnAction(e -> {
+            GridPane add_loan_grid = new GridPane();
+            add_loan_grid.setHgap(10);
+            add_loan_grid.setVgap(10);
+            add_loan_grid.setPadding(new Insets(20));
+
+            add_loan_grid.add(new Label("Name"), 0, 0);
+            add_loan_grid.add(name_add, 1, 0);
+
+            add_loan_grid.add(new Label("Description"), 0, 1);
+            add_loan_grid.add(descr_add, 1, 1);
+
+            add_loan_grid.add(new Label("Source"), 0, 2);
+            add_loan_grid.add(source_add, 1, 2);
+
+            add_loan_grid.add(new Label("Amount"), 0, 3);
+            add_loan_grid.add(amount_add, 1, 3);
+            
+            add_loan_grid.add(new Label("Remaining"), 0, 4);
+            add_loan_grid.add(remaining_add, 1, 4);
+
+            add_loan_grid.add(new Label("Monthly"), 0, 5);
+            add_loan_grid.add(moothly_add, 1, 5);
+
+            add_loan_grid.add(new Label("Start date"), 0, 6);
+            add_loan_grid.add(start_date, 1, 6);
+
+            add_loan_grid.add(new Label("Due date"), 0, 7);
+            add_loan_grid.add(due_date, 1, 7);
+
+            Button addGoal = new Button("Add loan");
+            addGoal.setStyle(btn_styles);
+            addGoal.setAlignment(Pos.CENTER);
+            add_loan_grid.add(addGoal, 1, 8);
+
+            Stage stage = new Stage();
+            stage.setTitle("Add Loan");
+            stage.setScene(new Scene(add_loan_grid, 400, 350));
+            stage.show();
+
+
+            addGoal.setOnAction(f -> {
+                String startDate = start_date.getValue().toString();
+                String deadlineToSend = due_date.getValue().toString();
+                Database.addLoan(
+                    name_add.getText(),
+                    descr_add.getText(),
+                    source_add.getText(),
+                    Double.parseDouble(amount_add.getText()),
+                    Double.parseDouble(remaining_add.getText()),
+                    Double.parseDouble(moothly_add.getText()),
+                    startDate,
+                    deadlineToSend
+                );
+
+                stage.hide();
+                name_add.clear();
+                descr_add.clear();
+                source_add.clear();
+                amount_add.clear();
+                remaining_add.clear();
+                moothly_add.clear();
+                start_date.setValue(null);
+                due_date.setValue(null);
+                refreshContent.run();
+            });
+        });
 
         content.getChildren().addAll(
             title,

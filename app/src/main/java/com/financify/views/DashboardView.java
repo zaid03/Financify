@@ -260,5 +260,4 @@ public class DashboardView extends VBox{
         scrollPane.setFitToWidth(true);
         getChildren().add(scrollPane);
     }
-    
 }

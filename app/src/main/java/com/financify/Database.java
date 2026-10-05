@@ -947,4 +947,28 @@ public class Database {
             throw new RuntimeException("Can't fetch total amount spent major expenses", e);
         }
     }
+
+    //adding a loan
+    public static void addLoan(String name, String description, String Source, Double amount, Double Remaining, Double Monthly, String Start_date, String Due_date) {
+        String transaction = """
+            INSERT INTO loans (name, description, Source, amount, Remaining, Monthly, Start_date, Due_date) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(transaction)) {
+                stmt.setString(1, name);
+                stmt.setString(2, description);
+                stmt.setString(3, Source);
+                stmt.setString(4, description);
+                stmt.setDouble(5, amount);
+                stmt.setDouble(6, Remaining);
+                stmt.setDouble(6, Monthly);
+                stmt.setString(6, Start_date);
+                stmt.setString(6, Due_date);
+                stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't add loan", e);
+        }
+    }
 }
