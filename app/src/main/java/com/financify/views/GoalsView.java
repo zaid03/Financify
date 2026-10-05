@@ -75,6 +75,7 @@ public class GoalsView extends VBox{
             -fx-font-size: 16px;
             -fx-font-weight: bold;
             -fx-text-fill: #0B3040;
+            -fx-fill: #0B3040;
         """;
         savings.setStyle(phrases_styles);
         status.setStyle(phrases_styles);
@@ -87,6 +88,9 @@ public class GoalsView extends VBox{
         BorderPane topBar = new BorderPane();
         topBar.setLeft(add_button);
         topBar.setCenter(filters);
+
+        Label completedTitle = new Label("On-going goals");
+        completedTitle.setStyle(phrases_styles);
 
         TableView<GoalsSection> goals_table = new TableView<>();
         TableColumn<GoalsSection, String> goalNameColumn = new TableColumn<>("Goal");
@@ -185,11 +189,76 @@ public class GoalsView extends VBox{
         total_totals.setAlignment(Pos.CENTER);
         total_totals.getChildren().addAll(total_saving, total_saved, total_remaining);
 
+        Label uncompletedTitle = new Label("Goals history");
+        uncompletedTitle.setStyle(phrases_styles);
+
+        TableView<GoalsSection> uncompletedGoals = new TableView<>();
+        TableColumn<GoalsSection, String> goalNameUncompletedColumn = new TableColumn<>("Goal");
+        TableColumn<GoalsSection, Integer> targetUncompletedColumn = new TableColumn<>("Target");
+        TableColumn<GoalsSection, Integer> currentUncompletedColumn = new TableColumn<>("Current");
+        TableColumn<GoalsSection, Integer> remainingUncompletedColumn = new TableColumn<>("Remaining");
+        TableColumn<GoalsSection, String> deadlineUncompletedColumn = new TableColumn<>("Deadline");
+        TableColumn<GoalsSection, String> completionDate = new TableColumn<>("Completion date");
+        goalNameUncompletedColumn.setCellValueFactory(new PropertyValueFactory<>("goal"));
+        targetUncompletedColumn.setCellValueFactory(new PropertyValueFactory<>("target"));
+        targetUncompletedColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer target, boolean empty) {
+                super.updateItem(target, empty);
+                if (empty || target == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%d MAD", target));
+                }
+            }
+        });
+        currentUncompletedColumn.setCellValueFactory(new PropertyValueFactory<>("current"));
+        currentUncompletedColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer current, boolean empty) {
+                super.updateItem(current, empty);
+                if (empty || current == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%d MAD", current));
+                }
+            }
+        });
+        remainingUncompletedColumn.setCellValueFactory(new PropertyValueFactory<>("remaining"));
+        remainingUncompletedColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Integer remaining, boolean empty) {
+                super.updateItem(remaining, empty);
+                if (empty || remaining == null) {
+                    setText(null);
+                } else {
+                    setText(String.format("%d MAD", remaining));
+                }
+            }
+        });
+        deadlineUncompletedColumn.setCellValueFactory(new PropertyValueFactory<>("deadline"));
+        completionDate.setCellValueFactory(new PropertyValueFactory<>("completionDate"));
+        uncompletedGoals.getColumns().addAll(
+            goalNameUncompletedColumn,
+            targetUncompletedColumn,
+            remainingUncompletedColumn,
+            currentUncompletedColumn,
+            deadlineUncompletedColumn,
+            completionDate
+        );
+
+        List<GoalsSection> Data = Database.getUncompletedGoals();
+        uncompletedGoals.getItems().addAll(Data);
+        uncompletedGoals.setMaxHeight(200);
+        uncompletedGoals.setStyle(table_style);
+        uncompletedGoals.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
         Runnable refreshContent = () -> {
             goals_table.getItems().setAll(Database.getGoals());
+            uncompletedGoals.getItems().setAll(Database.getUncompletedGoals());
 
             GoalSummaryModel statsUpdate = Database.fetchGoalsSummary();
-            Double net_WorthUpdate = Database.getNetWorthLatest(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM")));
+            Double net_WorthUpdate = Database.getNetWorthLatest(LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("yyyy-MM")));
             Integer total_targetUpdate = statsUpdate.getTotalTarget();
             Double is_enouphUpdate = net_WorthUpdate - total_targetUpdate;
             status.setText(is_enouphUpdate.toString());
@@ -261,7 +330,7 @@ public class GoalsView extends VBox{
             });
         });
 
-        //update and delete of a goal
+        //update and delete of an uncompleted goal
         TextField goal_nameUpdate = new TextField();
         TextField targetUpdate = new TextField();
         TextField currentUpdate = new TextField();
@@ -343,10 +412,95 @@ public class GoalsView extends VBox{
             }
         });
 
+        //update and delete of a completed goal
+        TextField goal_nameUncompleteUpdate = new TextField();
+        TextField targetUncompleteUpdate = new TextField();
+        TextField currentUncompleteUpdate = new TextField();
+        DatePicker add_DateUncompleteUpdate = new DatePicker();
+        uncompletedGoals.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                GoalsSection selected = uncompletedGoals.getSelectionModel().getSelectedItem();
+
+                if (selected != null) {
+                    goal_nameUncompleteUpdate.setText(selected.getGoal());
+                    targetUncompleteUpdate.setText(selected.getTarget().toString());
+                    currentUncompleteUpdate.setText(selected.getCurrent().toString());
+                    add_DateUncompleteUpdate.setValue(LocalDate.parse(selected.getDeadline()));
+
+                    GridPane update_goals_grid = new GridPane();
+                    update_goals_grid.setHgap(10);
+                    update_goals_grid.setVgap(10);
+                    update_goals_grid.setPadding(new Insets(20));
+
+                    update_goals_grid.add(new Label("Name"), 0, 0);
+                    update_goals_grid.add(goal_nameUncompleteUpdate, 1, 0);
+
+                    update_goals_grid.add(new Label("Target"), 0, 1);
+                    update_goals_grid.add(targetUncompleteUpdate, 1, 1);
+
+                    update_goals_grid.add(new Label("Current"), 0, 2);
+                    update_goals_grid.add(currentUncompleteUpdate, 1, 2);
+
+                    update_goals_grid.add(new Label("Date"), 0, 3);
+                    update_goals_grid.add(add_DateUncompleteUpdate, 1, 3);
+
+                    Button updateButton = new Button("Update");
+                    updateButton.setStyle(btn_styles);
+                    updateButton.setStyle("-fx-background-color: #1f4037; -fx-text-fill: white;");
+                    Button UnompleteButton = new Button("Uncomplete");
+                    UnompleteButton.setStyle(btn_styles);
+                    UnompleteButton.setStyle("-fx-background-color: #156082; -fx-text-fill: white;");
+                    Button deleteButton = new Button("Delete");
+                    deleteButton.setStyle(btn_styles);
+                    deleteButton.setStyle("-fx-background-color: #D70652; -fx-text-fill: white;");
+                    HBox butt_update = new HBox(10);
+                    butt_update.setAlignment(Pos.CENTER);
+                    butt_update.getChildren().addAll(updateButton, UnompleteButton, deleteButton);
+                    update_goals_grid.add(butt_update, 1, 5);
+
+                    Stage stage = new Stage();
+                    stage.setTitle("Update goal");
+                    stage.setScene(new Scene(update_goals_grid, 400, 280));
+                    stage.show();
+
+                    updateButton.setOnAction(f -> {
+                        String deadlineToSend = add_DateUncompleteUpdate.getValue().toString();
+                        Database.updateGoal(
+                            selected.getId(),
+                            goal_nameUncompleteUpdate.getText(),
+                            Integer.parseInt(targetUncompleteUpdate.getText()),
+                            Integer.parseInt(currentUncompleteUpdate.getText()),
+                            deadlineToSend
+                        );
+
+                        stage.hide();
+                        refreshContent.run();
+                    });
+
+                    UnompleteButton.setOnAction(a -> {
+                        Database.uncompleteGoal(selected.getId());
+
+                        stage.hide();
+                        refreshContent.run();
+                    });
+
+                    deleteButton.setOnAction(a -> {
+                        Database.deleteGoal(selected.getId());
+
+                        stage.hide();
+                        refreshContent.run();
+                    });
+                }
+            }
+        });
+
         content.getChildren().addAll(
             title,
             topBar,
+            completedTitle,
             goals_table,
+            uncompletedTitle,
+            uncompletedGoals,
             total_totals
         );
         ScrollPane scrollPane = new ScrollPane(content);

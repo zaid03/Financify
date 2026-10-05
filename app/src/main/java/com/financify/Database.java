@@ -380,7 +380,7 @@ public class Database {
         }
     }
 
-    //fetching goals
+    //fetching uncompleted goals
     public static List<GoalsSection> getGoals() {
         String fetch_sql = """
             SELECT * FROM goals_section WHERE is_active = 0
@@ -396,7 +396,38 @@ public class Database {
                         rs.getString("goal"),
                         rs.getInt("target"),
                         rs.getInt("current"),
-                        rs.getString("deadline")
+                        rs.getString("deadline"),
+                        rs.getInt("is_active"),
+                        rs.getString("completionDate")
+                    ));
+                }
+
+                return goals;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch goals", e);
+        }
+    }
+
+    //fetching completed goals
+    //fetching goals
+    public static List<GoalsSection> getUncompletedGoals() {
+        String fetch_sql = """
+            SELECT * FROM goals_section where is_active = 1
+        """;
+
+        List<GoalsSection> goals = new ArrayList<>();
+        try (Connection conn = connect();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(fetch_sql);)  {
+                while (rs.next()) {
+                    goals.add(new GoalsSection(
+                        rs.getInt("id"),
+                        rs.getString("goal"),
+                        rs.getInt("target"),
+                        rs.getInt("current"),
+                        rs.getString("deadline"),
+                        rs.getInt("is_active"),
+                        rs.getString("completionDate")
                     ));
                 }
 
@@ -496,6 +527,22 @@ public class Database {
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Can't set goal as completed", e);
+        }
+    }
+
+    //setting a goal as uncomplete
+    public static void uncompleteGoal(Integer id) {
+        String complete_sql = """
+            UPDATE goals_section 
+            SET is_active = 0, completionDate = null
+            WHERE id = ?
+        """;
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(complete_sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't set goal as uncompleted", e);
         }
     }
 
