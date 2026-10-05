@@ -40,4 +40,4 @@ target/
 app/financify.db
 
 #executable app
-Financify/
+# Financify/

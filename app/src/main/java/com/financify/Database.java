@@ -860,9 +860,11 @@ public class Database {
     }
 
     //fetching total loans
-    public static Double getTotalLoans() {
+    public static Double[] getTotalLoans() {
         String sql = """
-            SELECT SUM(CASE WHEN is_active = 0 THEN remaining ELSE 0 END) AS totalLoans 
+            SELECT 
+                SUM(CASE WHEN is_active = 0 THEN remaining ELSE 0 END) AS totalLoans,
+                SUM(CASE WHEN is_active = 0 THEN Monthly ELSE 0 END) AS monthly
             FROM loans
         """;
         try (Connection conn = connect();
@@ -870,16 +872,19 @@ public class Database {
             ResultSet rs = stmt.executeQuery(sql);
         ) {
             if (rs.next()) {
-                return rs.getDouble("totalLoans");
+                return new Double[] {
+                    rs.getDouble("totalLoans"),
+                    rs.getDouble("monthly")
+                };
             }
 
-            return 0.0;
+            return new Double[] {0.0, 0.0};
         } catch (SQLException e) {
-            throw new RuntimeException("Can't fetch total amount spent major expenses", e);
+            throw new RuntimeException("Can't fetch loans stats data", e);
         }
     }
 
-    //fetcing loans
+    //fetcing completed loans
     public static List<Loans> getLoans() {
         String sql = """
             SELECT * FROM loans WHERE is_active = 0
@@ -890,7 +895,7 @@ public class Database {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
         ) {
-            if (rs.next()) {
+            while (rs.next()) {
                 loans.add(new Loans(
                     rs.getInt("id"),
                     rs.getString("name"),
@@ -905,7 +910,38 @@ public class Database {
                     rs.getString("completionDate")
                 ));
             }
+            return loans;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch total amount spent major expenses", e);
+        }
+    }
 
+    //fetcing completed loans
+    public static List<Loans> getCompletedLoans() {
+        String sql = """
+            SELECT * FROM loans WHERE is_active = 1
+        """;
+
+        List<Loans> loans = new ArrayList<>();
+        try (Connection conn = connect();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+        ) {
+            while (rs.next()) {
+                loans.add(new Loans(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("description"),
+                    rs.getString("Source"),
+                    rs.getDouble("amount"),
+                    rs.getDouble("Remaining"),
+                    rs.getDouble("Monthly"),
+                    rs.getString("Start_date"),
+                    rs.getString("Due_date"),
+                    rs.getInt("is_active"),
+                    rs.getString("completionDate")
+                ));
+            }
             return loans;
         } catch (SQLException e) {
             throw new RuntimeException("Can't fetch total amount spent major expenses", e);
