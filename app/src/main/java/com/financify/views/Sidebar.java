@@ -14,7 +14,7 @@ public class Sidebar extends VBox {
         setStyle("-fx-background-color: #E2E2E2;");
 
         Button dashboardBtn = new Button("Dashboard");
-        Button bigPurchases = new Button("Major Purchases");
+        Button bigPurchases = new Button("Major Expenses");
         Button transactionsBtn = new Button("Transactions");
         Button goalsBtn = new Button("Goals");
         Button netWorthBtn = new Button("Net Worth");

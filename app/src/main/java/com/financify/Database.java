@@ -663,7 +663,7 @@ public class Database {
         }
     }
 
-    //selecting major purchases only
+    //selecting major expenses only
     public static List<Transactions> getMajorPurchases() {
         String fetchTransactions = """
             SELECT *
@@ -696,7 +696,7 @@ public class Database {
         }
     }
 
-    //selecting total amount spent on major purchases
+    //selecting total amount spent on major expenses
     public static Double getTotalSpentMajorPurchases() {
         LocalDate now = LocalDate.now();
         return getTotalSpentMajorPurchases(now.getYear(), now.getMonthValue());
@@ -727,7 +727,7 @@ public class Database {
             return 0.0;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Can't fetch total amount spent major purchases", e);
+            throw new RuntimeException("Can't fetch total amount spent major expenses", e);
         }
     }
 }
