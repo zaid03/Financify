@@ -15,6 +15,7 @@ import java.util.List;
 import com.financify.models.ExpenseCategoryModel;
 import com.financify.models.GoalSummaryModel;
 import com.financify.models.GoalsSection;
+import com.financify.models.Loans;
 import com.financify.models.MonthlySummaryModel;
 import com.financify.models.NetWorthGrowthModel;
 import com.financify.models.NetWorthModel;
@@ -74,7 +75,7 @@ public class Database {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE,
                 description TEXT,
-                Source TEXT
+                Source TEXT,
                 amount Double,
                 Remaining Double,
                 Monthly Double,
@@ -829,6 +830,59 @@ public class Database {
 
             return 0.0;
 
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch total amount spent major expenses", e);
+        }
+    }
+
+    //fetching total loans
+    public static Double getTotalLoans() {
+        String sql = """
+            SELECT SUM(CASE WHEN is_active = 0 THEN remaining ELSE 0 END) AS totalLoans 
+            FROM loans
+        """;
+        try (Connection conn = connect();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+        ) {
+            if (rs.next()) {
+                return rs.getDouble("totalLoans");
+            }
+
+            return 0.0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't fetch total amount spent major expenses", e);
+        }
+    }
+
+    //fetcing loans
+    public static List<Loans> getLoans() {
+        String sql = """
+            SELECT * FROM loans WHERE is_active = 0
+        """;
+
+        List<Loans> loans = new ArrayList<>();
+        try (Connection conn = connect();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+        ) {
+            if (rs.next()) {
+                loans.add(new Loans(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("description"),
+                    rs.getString("Source"),
+                    rs.getDouble("amount"),
+                    rs.getDouble("Remaining"),
+                    rs.getDouble("Monthly"),
+                    rs.getString("Start_date"),
+                    rs.getString("Due_date"),
+                    rs.getInt("is_active"),
+                    rs.getString("completionDate")
+                ));
+            }
+
+            return loans;
         } catch (SQLException e) {
             throw new RuntimeException("Can't fetch total amount spent major expenses", e);
         }
