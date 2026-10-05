@@ -107,7 +107,7 @@ public class TransactionsView extends VBox{
                 super.updateItem(transaction, empty);
 
                 if (!empty && transaction != null &&
-                    transaction.getIsBigPurchase().equals("Big Purchase")) {
+                    transaction.getIsBigPurchase().equals("Big Expenses")) {
 
                     setStyle("-fx-background-color: #ffe0e0;");
                 } else {
@@ -235,7 +235,7 @@ public class TransactionsView extends VBox{
                     "Shopping",
                     "Transport",
                     "Going out",
-                    "Big purchase",
+                    "Big Expenses",
                     "Entertainment",
                     "Other"
                 );
@@ -360,7 +360,7 @@ public class TransactionsView extends VBox{
                     "Shopping",
                     "Transport",
                     "Going out",
-                    "Big purchase",
+                    "Big Expenses",
                     "Entertainment",
                     "Other"
                 );
@@ -381,7 +381,7 @@ public class TransactionsView extends VBox{
                     categoryComboUpdate.setValue(selected.getCategory());
                     descriptionUpdate.setText(selected.getDescription());
                     amount_update.setText(selected.getAmount().toString());
-                    nature_update.setSelected(selected.getIsBigPurchase().equals("Big Purchase"));
+                    nature_update.setSelected(selected.getIsBigPurchase().equals("Big Expenses"));
 
                     GridPane update_transaction_grid = new GridPane();
                     update_transaction_grid.setHgap(10);

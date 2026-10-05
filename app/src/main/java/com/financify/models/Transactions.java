@@ -25,5 +25,5 @@ public class Transactions {
     public String getCategory() {return category;}
     public String getDescription() {return description;}
     public Double getAmount() {return amount;}
-    public String getIsBigPurchase() {return is_big_purchase == 1 ? "Big Purchase" : "Normal";}
+    public String getIsBigPurchase() {return is_big_purchase == 1 ? "Big Expenses" : "Normal";}
 }
