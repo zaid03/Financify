@@ -9,6 +9,7 @@ import com.financify.models.MonthlySummaryModel;
 import com.financify.models.NetWorthGrowthModel;
 import com.financify.models.NetWorthModel;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -222,12 +223,36 @@ public class DashboardView extends VBox{
         Label growth_title = new Label("Net worth breakdown");
         growth_title.setStyle(words_styles); 
 
+        Double[][] stats = Database.getNetWorthStats();
+        Double[] CurrentMonth = stats[0];
+        Double CurentBankBalance = CurrentMonth[0];
+        Double CurrentLoan = CurrentMonth[1];
+        Double[] lastMonth = stats[1];
+        Double lastBankBalance = lastMonth[0];
+        Double lastLoan = lastMonth[1];
+        Double curentNetWorth = CurentBankBalance - CurrentLoan;
+        Double lastNetWorth = lastBankBalance - lastLoan;
+        Double netWorthGrowthDash = lastNetWorth != 0 ? ((curentNetWorth - lastNetWorth) / lastNetWorth) * 100 : 0;
+        
         TableView<NetWorthGrowthModel> netWorthGrowrthTable = new TableView<>();
         TableColumn<NetWorthGrowthModel, String> monthGrowthColumn = new TableColumn<>("Month");
         TableColumn<NetWorthGrowthModel, String> savingsColumn = new TableColumn<>("Savings");
+        TableColumn<NetWorthGrowthModel, Double> growthColumn = new TableColumn<>("Net worth growth");
         monthGrowthColumn.setCellValueFactory(new PropertyValueFactory<>("month"));
         savingsColumn.setCellValueFactory(new PropertyValueFactory<>("netWorth"));
-        netWorthGrowrthTable.getColumns().addAll(monthGrowthColumn, savingsColumn);
+        growthColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(netWorthGrowthDash));
+        growthColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double netWorthGrowthDash, boolean empty) {
+            super.updateItem(netWorthGrowthDash, empty);
+            if (empty || netWorthGrowthDash == null) {
+                setText(null);
+            } else {
+                setText(String.format("%.2f%%", netWorthGrowthDash));
+            }
+            }
+        });
+        netWorthGrowrthTable.getColumns().addAll(monthGrowthColumn, savingsColumn, growthColumn);
         netWorthGrowrthTable.setMaxHeight(245);
         netWorthGrowrthTable.setStyle(table_style);
         netWorthGrowrthTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
