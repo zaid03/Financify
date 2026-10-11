@@ -321,11 +321,11 @@ public class NetWorthView extends VBox{
 
         Double[][] stats = Database.getNetWorthStats();
         Double[] CurrentMonth = stats[0];
-        Double CurentBankBalance = CurrentMonth[0];
-        Double CurrentLoan = CurrentMonth[1];
+        Double CurentBankBalance = CurrentMonth[0] != null ? CurrentMonth[0] : 0.0;
+        Double CurrentLoan = CurrentMonth[1] != null ? CurrentMonth[1] : 0.0;
         Double[] lastMonth = stats[1];
-        Double lastBankBalance = lastMonth[0];
-        Double lastLoan = lastMonth[1];
+        Double lastBankBalance = lastMonth[0] != null ? lastMonth[0] : 0.0;
+        Double lastLoan = lastMonth[1] != null ? lastMonth[1] : 0.0;
         Double curentNetWorth = CurentBankBalance - CurrentLoan;
         Double lastNetWorth = lastBankBalance - lastLoan;
         Double debtToAsset = CurentBankBalance != 0 ? (CurrentLoan / CurentBankBalance) * 100 : 0;

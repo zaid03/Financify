@@ -3,29 +3,17 @@ package com.financify.views;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 public class Sidebar extends VBox {
-    public Sidebar(BorderPane  root) {
+    public Sidebar(BorderPane  root, String version) {
         setSpacing(10);
         setPadding(new Insets(15));
         setPrefWidth(200);
         setStyle("-fx-background-color: #E2E2E2;");
-
-        Button dashboardBtn = new Button("Dashboard");
-        Button bigPurchases = new Button("Major Expenses");
-        Button transactionsBtn = new Button("Transactions");
-        Button goalsBtn = new Button("Goals");
-        Button netWorthBtn = new Button("Net Worth");
-        Button loansBtn = new Button("Loans");
-
-        dashboardBtn.setMaxWidth(Double.MAX_VALUE);
-        transactionsBtn.setMaxWidth(Double.MAX_VALUE);
-        bigPurchases.setMaxWidth(Double.MAX_VALUE);
-        goalsBtn.setMaxWidth(Double.MAX_VALUE);
-        netWorthBtn.setMaxWidth(Double.MAX_VALUE);
-        loansBtn.setMaxWidth(Double.MAX_VALUE);
 
         String buttonStyle = """
             -fx-background-color: transparent;
@@ -39,7 +27,6 @@ public class Sidebar extends VBox {
             -fx-padding: 12 16;
             -fx-cursor: hand;
         """;
-
         String hoverStyle = """
             -fx-border-color: #782170;
             -fx-border-width: 2;
@@ -52,6 +39,32 @@ public class Sidebar extends VBox {
             -fx-background-color: #923089;
             -fx-text-fill: white;
         """;
+        String title_styles = """
+            -fx-font-size: 28px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #782170;
+        """;
+        String words_styles = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #0B3040;
+        """;
+
+        Label app_name = new Label("Financify");
+        app_name.setStyle(title_styles);
+        Label app_version = new Label("V" + version);
+        app_version.setStyle(words_styles);
+
+        VBox app_titles = new VBox(10);
+        app_titles.setAlignment(Pos.TOP_LEFT);
+        app_titles.getChildren().addAll(app_name, app_version);
+
+        Button dashboardBtn = new Button("Dashboard");
+        Button bigPurchases = new Button("Major Expenses");
+        Button transactionsBtn = new Button("Transactions");
+        Button goalsBtn = new Button("Goals");
+        Button netWorthBtn = new Button("Net Worth");
+        Button loansBtn = new Button("Loans");
 
         dashboardBtn.setStyle(buttonStyle);
         dashboardBtn.setOnMouseEntered(e -> dashboardBtn.setStyle(hoverStyle));
@@ -72,14 +85,27 @@ public class Sidebar extends VBox {
         loansBtn.setOnMouseEntered(e -> loansBtn.setStyle(hoverStyle));
         loansBtn.setOnMouseExited(e -> loansBtn.setStyle(buttonStyle));
 
-        setAlignment(Pos.CENTER);
-        getChildren().addAll(
-            dashboardBtn,
+        dashboardBtn.setMaxWidth(Double.MAX_VALUE);
+        transactionsBtn.setMaxWidth(Double.MAX_VALUE);
+        bigPurchases.setMaxWidth(Double.MAX_VALUE);
+        goalsBtn.setMaxWidth(Double.MAX_VALUE);
+        netWorthBtn.setMaxWidth(Double.MAX_VALUE);
+        loansBtn.setMaxWidth(Double.MAX_VALUE);
+
+        VBox btns = new VBox(10);
+        VBox.setVgrow(btns, Priority.ALWAYS);
+        btns.setMaxHeight(Double.MAX_VALUE);
+        btns.setAlignment(Pos.CENTER);
+        btns.getChildren().addAll(dashboardBtn,
             transactionsBtn,
             bigPurchases,
             netWorthBtn,
             loansBtn,
-            goalsBtn
+            goalsBtn);
+
+        getChildren().addAll(
+            app_titles,
+            btns
         );
 
         dashboardBtn.setOnAction(e -> {
