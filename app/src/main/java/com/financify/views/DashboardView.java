@@ -10,6 +10,8 @@ import com.financify.models.NetWorthGrowthModel;
 import com.financify.models.NetWorthModel;
 
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -237,21 +239,24 @@ public class DashboardView extends VBox{
         TableView<NetWorthGrowthModel> netWorthGrowrthTable = new TableView<>();
         TableColumn<NetWorthGrowthModel, String> monthGrowthColumn = new TableColumn<>("Month");
         TableColumn<NetWorthGrowthModel, String> savingsColumn = new TableColumn<>("Savings");
-        TableColumn<NetWorthGrowthModel, Double> growthColumn = new TableColumn<>("Net worth growth");
+        TableColumn<NetWorthGrowthModel, String> growthColumn = new TableColumn<>("Net worth growth");
         monthGrowthColumn.setCellValueFactory(new PropertyValueFactory<>("month"));
         savingsColumn.setCellValueFactory(new PropertyValueFactory<>("netWorth"));
-        growthColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(netWorthGrowthDash));
-        growthColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(Double netWorthGrowthDash, boolean empty) {
-            super.updateItem(netWorthGrowthDash, empty);
-            if (empty || netWorthGrowthDash == null) {
-                setText(null);
-            } else {
-                setText(String.format("%.2f%%", netWorthGrowthDash));
+        growthColumn.setCellValueFactory(cellData -> {
+            ObservableList<NetWorthGrowthModel> items = netWorthGrowrthTable.getItems();
+            int index = items.indexOf(cellData.getValue());
+
+            if (index <= 0) {
+                return new SimpleObjectProperty<>(null);
             }
-            }
-        });
+
+            double currentSavings = cellData.getValue().getNetWorth();
+            double previousSavings = items.get(index - 1).getNetWorth();
+
+            double growth = previousSavings != 0 ? ((currentSavings - previousSavings) / previousSavings) * 100 : 0;
+
+            return new SimpleStringProperty(String.format("%.2f%%", growth));
+        });      
         netWorthGrowrthTable.getColumns().addAll(monthGrowthColumn, savingsColumn, growthColumn);
         netWorthGrowrthTable.setMaxHeight(245);
         netWorthGrowrthTable.setStyle(table_style);

@@ -695,6 +695,7 @@ public class Database {
             SELECT *
                 FROM (
                     SELECT
+                        id,
                         month,
                         bank_balance - COALESCE(loans, 0) AS net_worth
                     FROM net_worth
@@ -709,6 +710,7 @@ public class Database {
         try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql);) {
             while (rs.next()) {
                 growth.add(new NetWorthGrowthModel(
+                    rs.getInt("id"),
                     rs.getString("month"),
                     rs.getDouble("net_worth")
                 ));
