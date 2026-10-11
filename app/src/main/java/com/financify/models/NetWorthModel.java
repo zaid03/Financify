@@ -8,9 +8,9 @@ public class NetWorthModel {
     private Integer id;
     private String month;
     private Double bank_balance;
-    private Integer loans;
+    private Double loans;
 
-    public NetWorthModel (Integer id, String month, Double bank_balance, Integer loans) {
+    public NetWorthModel (Integer id, String month, Double bank_balance, Double loans) {
         this.id = id;
         this.month = month;
         this.bank_balance = bank_balance;
@@ -24,6 +24,6 @@ public class NetWorthModel {
     public Integer getYear() {return Integer.parseInt(month.substring(0, 4));}
     public Integer getMonthNumber() {return Integer.parseInt(month.substring(5, 7));}
     public Double getBankBalance() {return bank_balance;}
-    public Integer getLoans() {return loans;}
+    public Double getLoans() {return loans;}
     public double getNetWorth() {return bank_balance - loans;}
 }

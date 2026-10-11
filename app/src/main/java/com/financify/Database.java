@@ -50,7 +50,7 @@ public class Database {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 month TEXT UNIQUE,
                 bank_balance,
-                loans INTEGER
+                loans REAL
             )
         """;
         String goals_section = """
@@ -280,7 +280,7 @@ public class Database {
                     rs.getInt("id"),
                     rs.getString("month"),
                     rs.getDouble("bank_balance"),
-                    rs.getInt("loans")
+                    rs.getDouble("loans")
                 ));
             }
 
@@ -312,7 +312,7 @@ public class Database {
                     rs.getInt("id"),
                     rs.getString("month"),
                     rs.getDouble("bank_balance"),
-                    rs.getInt("loans")
+                    rs.getDouble("loans")
                 );
 
                 return netWorth;
@@ -342,20 +342,18 @@ public class Database {
     }
 
     //adding monthly net worth
-    public static void postNetWorth(String month, Double bank_balance, Integer loans) {
+    public static void postNetWorth(String month, Double bank_balance) {
         String add_netWorth = """
             insert into net_worth (month, bank_balance, loans) values (?, ?, ?)
         """;
 
         try (Connection conn = connect();
             PreparedStatement stmt = conn.prepareStatement(add_netWorth)){
+            Double[] loansData = getTotalLoans();
+            Double loanValue = loansData[0];
             stmt.setString(1, month);
             stmt.setDouble(2, bank_balance);
-            if (loans == null) {
-                stmt.setInt(3, 0);
-            } else {
-                stmt.setInt(3, loans);
-            }
+            stmt.setDouble(3, loanValue);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Can't add to net worth", e);
@@ -363,21 +361,16 @@ public class Database {
     }
 
     //update monthly net worth
-    public static void updateNetWorth(Integer id, String month, Double bank_balance, Integer loans) {
+    public static void updateNetWorth(Integer id, String month, Double bank_balance) {
         String update_netWorth = """
-            UPDATE net_worth SET month = ?, bank_balance = ?, loans = ? WHERE id = ?
+            UPDATE net_worth SET month = ?, bank_balance = ? WHERE id = ?
         """;
 
         try (Connection conn = connect();
             PreparedStatement stmt = conn.prepareStatement(update_netWorth)){
             stmt.setString(1, month);
             stmt.setDouble(2, bank_balance);
-            if (loans == null) {
-                stmt.setNull(3, Types.INTEGER);
-            } else {
-                stmt.setInt(3, loans);
-            }
-            stmt.setInt(4, id);
+            stmt.setInt(3, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Can't update net worth", e);
@@ -950,22 +943,38 @@ public class Database {
 
     //adding a loan
     public static void addLoan(String name, String description, String Source, Double amount, Double Remaining, Double Monthly, String Start_date, String Due_date) {
-        String transaction = """
+        String Loan = """
             INSERT INTO loans (name, description, Source, amount, Remaining, Monthly, Start_date, Due_date) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """;
+        String netWorth = """
+            UPDATE net_worth
+            SET loans = ?
+            WHERE id = (
+                SELECT id
+                FROM net_worth
+                ORDER BY id DESC
+                LIMIT 1
+            );
+        """;
 
         try (Connection conn = connect();
-            PreparedStatement stmt = conn.prepareStatement(transaction)) {
-                stmt.setString(1, name);
-                stmt.setString(2, description);
-                stmt.setString(3, Source);
-                stmt.setDouble(4, amount);
-                stmt.setDouble(5, Remaining);
-                stmt.setDouble(6, Monthly);
-                stmt.setString(7, Start_date);
-                stmt.setString(8, Due_date);
-                stmt.executeUpdate();
+            PreparedStatement stmt = conn.prepareStatement(Loan)) {
+            stmt.setString(1, name);
+            stmt.setString(2, description);
+            stmt.setString(3, Source);
+            stmt.setDouble(4, amount);
+            stmt.setDouble(5, Remaining);
+            stmt.setDouble(6, Monthly);
+            stmt.setString(7, Start_date);
+            stmt.setString(8, Due_date);
+            stmt.executeUpdate();
+            Double[] loansData = getTotalLoans();
+            Double loanValue = loansData[0];
+            try (PreparedStatement stmt2 = conn.prepareStatement(netWorth)) {
+                stmt2.setDouble(1, loanValue);
+                stmt2.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Can't add loan", e);
         }
@@ -978,18 +987,34 @@ public class Database {
                 name = ?, description = ?, Source = ?, amount = ?, Remaining = ?, Monthly = ?, Start_date = ?, Due_date = ?
             WHERE id = ?
         """;
+        String netWorth = """
+            UPDATE net_worth
+            SET loans = ?
+            WHERE id = (
+                SELECT id
+                FROM net_worth
+                ORDER BY id DESC
+                LIMIT 1
+            );
+        """;
         try(Connection conn = connect();
             PreparedStatement stmt = conn.prepareStatement(sql)){
-                stmt.setString(1, name);
-                stmt.setString(2, description);
-                stmt.setString(3, Source);
-                stmt.setDouble(4, amount);
-                stmt.setDouble(5, Remaining);
-                stmt.setDouble(6, Monthly);
-                stmt.setString(7, Start_date);
-                stmt.setString(8, Due_date);
-                stmt.setLong(9, id);
-                stmt.executeUpdate();
+            stmt.setString(1, name);
+            stmt.setString(2, description);
+            stmt.setString(3, Source);
+            stmt.setDouble(4, amount);
+            stmt.setDouble(5, Remaining);
+            stmt.setDouble(6, Monthly);
+            stmt.setString(7, Start_date);
+            stmt.setString(8, Due_date);
+            stmt.setLong(9, id);
+            stmt.executeUpdate();
+            Double[] loansData = getTotalLoans();
+            Double loanValue = loansData[0];
+            try (PreparedStatement stmt2 = conn.prepareStatement(netWorth)) {
+                stmt2.setDouble(1, loanValue);
+                stmt2.executeUpdate();
+            }
         } catch (Exception e) {
             throw new RuntimeException("Can't update loan", e);
         }
@@ -1000,11 +1025,27 @@ public class Database {
         String sql = """
             delete from loans where id = ?
         """;
+        String netWorth = """
+            UPDATE net_worth
+            SET loans = ?
+            WHERE id = (
+                SELECT id
+                FROM net_worth
+                ORDER BY id DESC
+                LIMIT 1
+            );
+        """;
 
         try (Connection conn = connect();
             PreparedStatement stmt = conn.prepareStatement(sql)){
-                stmt.setInt(1, id);
-                stmt.executeUpdate();
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+            Double[] loansData = getTotalLoans();
+            Double loanValue = loansData[0];
+            try (PreparedStatement stmt2 = conn.prepareStatement(netWorth)) {
+                stmt2.setDouble(1, loanValue);
+                stmt2.executeUpdate();
+            }
         } catch (Exception e) {
             throw new RuntimeException("Can't update loan", e);
         }
@@ -1033,4 +1074,25 @@ public class Database {
         }
     }
 
+    public static Double[][] getNetWorthStats() {
+        String sql = """
+            SELECT bank_balance, loans FROM net_worth ORDER BY month DESC LIMIT 2        
+        """;
+        
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();) {    
+            Double[][] result = new Double[2][2];
+            int i = 0;
+            while (rs.next()) {
+                result[i][0] = rs.getDouble("bank_balance");
+                result[i][1] = rs.getDouble("loans");
+                i++;
+            }
+
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("Can't change status loan", e);
+        }
+    }
 }

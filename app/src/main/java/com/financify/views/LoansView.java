@@ -81,7 +81,7 @@ public class LoansView extends VBox {
         Double loansTotalAmount = loans[0];
         TextFlow loansTotal = new TextFlow();
         Text loansTotalText = new Text("Total of loans : ");
-        Text loansTotalNumber = new Text(String.format("%.2f mad", loansTotalAmount));        
+        Text loansTotalNumber = new Text(String.format("%.2f MAD", loansTotalAmount));        
         loansTotalText.setStyle(phrases_styles);
         loansTotalNumber.setStyle(money_styles);
         loansTotal.getChildren().addAll(loansTotalText, loansTotalNumber);
@@ -89,7 +89,7 @@ public class LoansView extends VBox {
         Double monthly = loans[1];
         TextFlow monthlyTotal= new TextFlow();
         Text monthlyText = new Text("Monthly payments : ");
-        Text monthlyNumber = new Text(String.format("%.2f mad", monthly));        
+        Text monthlyNumber = new Text(String.format("%.2f MAD", monthly));        
         monthlyText.setStyle(phrases_styles);
         monthlyNumber.setStyle(money_styles);
         monthlyTotal.getChildren().addAll(monthlyText, monthlyNumber);
@@ -251,11 +251,11 @@ public class LoansView extends VBox {
 
             Double loansTotalAmountUpdate = loansUpdate[0];
             loansTotalText.setText("Total of loans : ");
-            loansTotalNumber.setText(String.format("%.2f mad", loansTotalAmountUpdate));        
+            loansTotalNumber.setText(String.format("%.2f MAD", loansTotalAmountUpdate));        
 
             Double monthlyUpdate = loansUpdate[1];
             monthlyText.setText("Monthly payments : ");
-            monthlyNumber.setText(String.format("%.2f mad", monthlyUpdate));        
+            monthlyNumber.setText(String.format("%.2f MAD", monthlyUpdate));        
         };
 
         //add loan grid

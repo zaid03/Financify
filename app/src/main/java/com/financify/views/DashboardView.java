@@ -62,7 +62,7 @@ public class DashboardView extends VBox{
         NetWorthModel netWorth = Database.getNetWorthExact();
         double selfMoney = 0;
         Double totalEarned = Database.getTotalIncome();
-        int currentLoans = 0;
+        Double currentLoans = 0.00;
         if (netWorth != null) {
             selfMoney = netWorth.getNetWorth();
             currentLoans = netWorth.getLoans();

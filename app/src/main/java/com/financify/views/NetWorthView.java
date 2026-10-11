@@ -21,7 +21,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 public class NetWorthView extends VBox{
@@ -40,6 +44,18 @@ public class NetWorthView extends VBox{
             -fx-font-size: 16px;
             -fx-font-weight: bold;
             -fx-text-fill: #0B3040;
+        """;
+        String money_styles = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #4495b8;
+            -fx-fill: #4495b8;
+        """;
+        String phrases_styles = """
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #0B3040;
+            -fx-fill: #0B3040;
         """;
         title.setStyle(title_styles);
         Label filter = new Label("Change the year to display its net tracking history");
@@ -68,7 +84,7 @@ public class NetWorthView extends VBox{
         TableView<NetWorthModel> netWorth_table = new TableView<>();
         TableColumn<NetWorthModel, String> monthColumn = new TableColumn<>("Month");
         TableColumn<NetWorthModel, Double> bankBalanceColumn = new TableColumn<>("Bank Balance");
-        TableColumn<NetWorthModel, Integer> loanColumn = new TableColumn<>("Loans");
+        TableColumn<NetWorthModel, Double> loanColumn = new TableColumn<>("Loans");
         TableColumn<NetWorthModel, Double> netWorthColumn = new TableColumn<>("Net Worth");
         monthColumn.setCellValueFactory(new PropertyValueFactory<>("month"));
         bankBalanceColumn.setCellValueFactory(new PropertyValueFactory<>("bankBalance"));
@@ -86,12 +102,12 @@ public class NetWorthView extends VBox{
         loanColumn.setCellValueFactory(new PropertyValueFactory<>("loans"));
         loanColumn.setCellFactory(column -> new TableCell<>() {
             @Override
-            protected void updateItem(Integer loans, boolean empty) {
+            protected void updateItem(Double loans, boolean empty) {
             super.updateItem(loans, empty);
             if (empty || loans == null) {
                 setText(null);
             } else {
-                setText(String.format("%d MAD", loans));
+                setText(String.format("%.2f MAD", loans));
             }
             }
         });
@@ -124,7 +140,9 @@ public class NetWorthView extends VBox{
 
         List<NetWorthModel> netWorth = Database.getNetWorth();
         netWorth_table.getItems().addAll(netWorth);
-        netWorth_table.setMinHeight(350);
+        netWorth_table.setPrefHeight(450);
+        netWorth_table.setMinHeight(300);
+        VBox.setVgrow(netWorth_table, Priority.ALWAYS);
 
         yearComboBox.setOnAction(e -> {
             netWorth_table.getItems().setAll(Database.getSomeNetWorth(yearComboBox.getValue()));
@@ -146,10 +164,20 @@ public class NetWorthView extends VBox{
             2032,
             2033,
             2034,
-            2035
+            2035,
+            2036,
+            2037,
+            2038,
+            2039,
+            2040,
+            2041,
+            2042,
+            2043,
+            2044,
+            2045,
+            2046
         );
         TextField bankBalance = new TextField();
-        TextField loans = new TextField();
         add_button.setOnAction(f -> {
             GridPane add_net_worth_grid = new GridPane();
             add_net_worth_grid.setHgap(10);
@@ -166,14 +194,11 @@ public class NetWorthView extends VBox{
 
             add_net_worth_grid.add(new Label("Bank balance"), 0, 1);
             add_net_worth_grid.add(bankBalance, 1, 1);
-
-            add_net_worth_grid.add(new Label("Loan (Optional)"), 0, 2);
-            add_net_worth_grid.add(loans, 1, 2);
             
             Button addTransaction = new Button("Add");
             addTransaction.setStyle(btn_styles);
             addTransaction.setAlignment(Pos.CENTER);
-            add_net_worth_grid.add(addTransaction, 1, 5);
+            add_net_worth_grid.add(addTransaction, 1, 3);
 
             Stage stage = new Stage();
             stage.setTitle("Add Transaction");
@@ -182,22 +207,14 @@ public class NetWorthView extends VBox{
 
             addTransaction.setOnAction(e -> {
                 String MonthToSend = String.format("%d-%02d", year.getValue(), month.getValue());
-                Integer loanValue = null;
-                if (loans.getText().isBlank()) {
-                    loanValue = null;
-                } else {
-                    loanValue = Integer.parseInt(loans.getText());
-                }
                 Database.postNetWorth (
                     MonthToSend,
-                    Double.parseDouble(bankBalance.getText()),
-                    loanValue
+                    Double.parseDouble(bankBalance.getText())
                 );
 
                 month.getSelectionModel().clearSelection();
                 year.getSelectionModel().clearSelection();
                 bankBalance.clear();
-                loans.clear();
                 netWorth_table.getItems().setAll(Database.getNetWorth());
                 yearComboBox.getItems().setAll(Database.getAllYearsToFilter());
                 yearComboBox.setValue(LocalDate.now().getYear());
@@ -221,10 +238,20 @@ public class NetWorthView extends VBox{
             2032,
             2033,
             2034,
-            2035
+            2035,
+            2036,
+            2037,
+            2038,
+            2039,
+            2040,
+            2041,
+            2042,
+            2043,
+            2044,
+            2045,
+            2046
         );
         TextField bankBalanceUpdate = new TextField();
-        TextField loansUpdate = new TextField();
         netWorth_table.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
                 NetWorthModel selected = netWorth_table.getSelectionModel().getSelectedItem();
@@ -233,7 +260,6 @@ public class NetWorthView extends VBox{
                     monthUpdate.setValue(selected.getMonthNumber());
                     yearUpdate.setValue(selected.getYear());
                     bankBalanceUpdate.setText(selected.getBankBalance().toString());
-                    loansUpdate.setText(selected.getLoans().toString());
 
                     GridPane update_netWorth_grid = new GridPane();
                     update_netWorth_grid.setHgap(10);
@@ -249,9 +275,6 @@ public class NetWorthView extends VBox{
                     update_netWorth_grid.add(new Label("Bank balance: "), 0, 2);
                     update_netWorth_grid.add(bankBalanceUpdate, 1, 2);
 
-                    update_netWorth_grid.add(new Label("Description: "), 0, 3);
-                    update_netWorth_grid.add(loansUpdate, 1, 3);
-
                     Button updateButton = new Button("Update");
                     updateButton.setStyle(btn_styles);
                     updateButton.setStyle("-fx-background-color: #1f4037; -fx-text-fill: white;");
@@ -261,7 +284,7 @@ public class NetWorthView extends VBox{
                     HBox butt_update = new HBox(10);
                     butt_update.setAlignment(Pos.CENTER);
                     butt_update.getChildren().addAll(updateButton, deleteButton);
-                    update_netWorth_grid.add(butt_update, 1, 4);
+                    update_netWorth_grid.add(butt_update, 1, 3);
 
                     Stage stage = new Stage();
                     stage.setTitle("Update Transaction");
@@ -273,8 +296,7 @@ public class NetWorthView extends VBox{
                         Database.updateNetWorth(
                             selected.getId(),
                             MonthToSendUpdate,
-                            Double.parseDouble(bankBalanceUpdate.getText()),
-                            Integer.parseInt(loansUpdate.getText())
+                            Double.parseDouble(bankBalanceUpdate.getText())
                         );
 
                         netWorth_table.getItems().setAll(Database.getNetWorth());
@@ -297,11 +319,76 @@ public class NetWorthView extends VBox{
             }
         });
 
+        Double[][] stats = Database.getNetWorthStats();
+        Double[] CurrentMonth = stats[0];
+        Double CurentBankBalance = CurrentMonth[0];
+        Double CurrentLoan = CurrentMonth[1];
+        Double[] lastMonth = stats[1];
+        Double lastBankBalance = lastMonth[0];
+        Double lastLoan = lastMonth[1];
+        Double curentNetWorth = CurentBankBalance - CurrentLoan;
+        Double lastNetWorth = lastBankBalance - lastLoan;
+        Double debtToAsset = CurentBankBalance != 0 ? (CurrentLoan / CurentBankBalance) * 100 : 0;
+        Double netWorthGrowth = lastNetWorth != 0 ? ((curentNetWorth - lastNetWorth) / lastNetWorth) * 100 : 0;
+        Double liabilitesGrowth = lastLoan != 0 ? ((CurrentLoan - lastLoan) / lastLoan) * 100 : 0;
+        
+        TextFlow totalAssets = new TextFlow();
+        Text assetsTotalText = new Text("Total of assets : ");
+        Text assetsTotalNumber = new Text(String.format("%.2f MAD", CurentBankBalance));        
+        assetsTotalText.setStyle(phrases_styles);
+        assetsTotalNumber.setStyle(money_styles);
+        totalAssets.getChildren().addAll(assetsTotalText, assetsTotalNumber);
+
+        TextFlow totalLiabilities = new TextFlow();
+        Text liabilitiesTotalText = new Text("Total of liabilities : ");
+        Text liabilitiesTotalNumber = new Text(String.format("%.2f MAD", CurrentLoan));        
+        liabilitiesTotalText.setStyle(phrases_styles);
+        liabilitiesTotalNumber.setStyle(money_styles);
+        totalLiabilities.getChildren().addAll(liabilitiesTotalText, liabilitiesTotalNumber);
+
+        TextFlow currentNetWorth = new TextFlow();
+        Text netWorthTotalText = new Text("Net Worth : ");
+        Text netWorthTotalNumber = new Text(String.format("%.2f MAD", curentNetWorth));        
+        netWorthTotalText.setStyle(phrases_styles);
+        netWorthTotalNumber.setStyle(money_styles);
+        currentNetWorth.getChildren().addAll(netWorthTotalText, netWorthTotalNumber);
+
+        TextFlow DebtToAssets = new TextFlow();
+        Text DTATotalText = new Text("Debt-To-Assets : ");
+        Text DTATotalNumber = new Text(String.format("%.2f%%", debtToAsset));        
+        DTATotalText.setStyle(phrases_styles);
+        DTATotalNumber.setStyle(money_styles);
+        DebtToAssets.getChildren().addAll(DTATotalText, DTATotalNumber);
+
+        TextFlow netWorthGrowthStat = new TextFlow();
+        Text NWGTotalText = new Text("Net worth growth % : ");
+        Text NWGTotalNumber = new Text(String.format("%.2f%%", netWorthGrowth));        
+        NWGTotalText.setStyle(phrases_styles);
+        NWGTotalNumber.setStyle(money_styles);
+        netWorthGrowthStat.getChildren().addAll(NWGTotalText, NWGTotalNumber);
+
+        TextFlow LGAssets = new TextFlow();
+        Text LGTotalText = new Text("Liabilities growth % : ");
+        Text LGTextTotalNumber = new Text(String.format("%.2f%%", liabilitesGrowth));        
+        LGTotalText.setStyle(phrases_styles);
+        LGTextTotalNumber.setStyle(money_styles);
+        LGAssets.getChildren().addAll(LGTotalText, LGTextTotalNumber);
+
+        HBox netWorthStats = new HBox(10);
+        netWorthStats.getChildren().addAll(totalAssets, totalLiabilities, currentNetWorth);
+        netWorthStats.setAlignment(Pos.CENTER);
+
+        HBox netWorthStats2 = new HBox(10);
+        netWorthStats2.getChildren().addAll(DebtToAssets, netWorthGrowthStat, LGAssets);
+        netWorthStats2.setAlignment(Pos.CENTER);
+
         content.getChildren().addAll(
             title,
             filter,
             topBar,
-            netWorth_table
+            netWorth_table,
+            netWorthStats,
+            netWorthStats2
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
