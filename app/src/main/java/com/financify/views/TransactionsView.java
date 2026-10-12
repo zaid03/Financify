@@ -280,14 +280,25 @@ public class TransactionsView extends VBox{
 
             addTransaction.setOnAction(f -> {
                 int isBigPurchase = nature_add.isSelected() ? 1 : 0;
-                Database.addTransaction(
-                    add_Date.getValue().toString(),
-                    typeCombo.getValue(),
-                    categoryCombo.getValue(),
-                    description.getText(),
-                    Double.parseDouble(amount_add.getText()),
-                    isBigPurchase
-                );
+                if (isBigPurchase == 1) {
+                    Database.addTransaction(
+                        add_Date.getValue().toString(),
+                        "Expense",
+                        "Big Expenses",
+                        description.getText(),
+                        Double.parseDouble(amount_add.getText()),
+                        isBigPurchase
+                    );
+                } else {
+                    Database.addTransaction(
+                        add_Date.getValue().toString(),
+                        typeCombo.getValue(),
+                        categoryCombo.getValue(),
+                        description.getText(),
+                        Double.parseDouble(amount_add.getText()),
+                        isBigPurchase
+                    );
+                }
 
                 yearComboBox.setOnAction(null);
 
