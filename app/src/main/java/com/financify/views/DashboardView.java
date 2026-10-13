@@ -72,12 +72,14 @@ public class DashboardView extends VBox{
         }
         Double totalSpent = Database.getTotalSpent();
         Double montlySaving = totalEarned - totalSpent;
-        Double savingRate = 0.00;
-        if (totalEarned > 0) {
-            savingRate = (montlySaving / totalEarned) * 100;
-        }
         double totalSpentMajor = Database.getTotalSpentMajorPurchases();
         Double cashFlow = totalEarned - (totalSpentMajor + totalSpent);
+        Double savingRate = 0.00;
+        Double totalSavingRate = 0.00;
+        if (totalEarned > 0) {
+            savingRate = (montlySaving / totalEarned) * 100;
+            totalSavingRate = ((montlySaving - totalSpentMajor) / totalEarned) * 100;
+        }
         currentSituationTable.getItems().addAll(
             new DashboardStat("Current Savings", selfMoney + " MAD"),
             new DashboardStat("Monthly Earning",  totalEarned + " MAD"),
@@ -86,7 +88,8 @@ public class DashboardView extends VBox{
             new DashboardStat("Month's Savings", montlySaving + " MAD"),
             new DashboardStat("Month's Major Expenses", totalSpentMajor + " MAD"),
             new DashboardStat("Cash Flow", cashFlow + " MAD"),
-            new DashboardStat("Savings Rate", savingRate + " %")
+            new DashboardStat("Monthly Savings Rate ", String.format("%.2f%%", savingRate)),
+            new DashboardStat("Total Savings Rate ", String.format("%.2f%%", totalSavingRate))
         );
 
         VBox currentSituation = new VBox();

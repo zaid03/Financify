@@ -293,7 +293,7 @@ public class Database {
 
     //selecting a specific net worth
     public static NetWorthModel getNetWorthExact() {
-        YearMonth DDate = YearMonth.now();
+        YearMonth DDate = YearMonth.now().minusMonths(1);
 
         String fetchNetWorth = """
             SELECT *
