@@ -1144,4 +1144,27 @@ public class Database {
             throw new RuntimeException("Can't create user", e);
         }
     }
+
+    //logging in a user
+    public static boolean logUser(String username, String password) {
+        String sql = """
+            SELECT password FROM user_table WHERE username = ? 
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(sql);) {
+            stmt.setString(1, username);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String db_password = rs.getString("password");
+                    return PasswordUtils.checkPassword(password, db_password);
+                }
+
+                return false;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Can't log user", e);
+        }
+    }
 }

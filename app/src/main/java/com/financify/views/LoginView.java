@@ -1,6 +1,8 @@
 
 package com.financify.views;
 
+import com.financify.Database;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,12 +12,17 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 
 public class LoginView extends VBox {
+    private final BorderPane root;
+    private final String version;
 
-    public LoginView() {
+    public LoginView(BorderPane root, String version) {
+        this.root = root;
+        this.version = version;
+
         VBox content = new VBox(12);
         content.setPadding(new Insets(30));
         content.setAlignment(Pos.CENTER);
@@ -45,14 +52,14 @@ public class LoginView extends VBox {
         Label title = new Label("Login to Financify");
         title.setStyle(title_styles);
 
-        Label emailLabel = new Label("Email");
-        emailLabel.setStyle(words_styles);
-        emailLabel.setMaxWidth(Double.MAX_VALUE);
+        Label usernameLabel = new Label("Username");
+        usernameLabel.setStyle(words_styles);
+        usernameLabel.setMaxWidth(Double.MAX_VALUE);
 
-        TextField emailField = new TextField();
-        emailField.setPromptText("Enter your email");
-        emailField.setPrefHeight(40);
-        emailField.setStyle(table_style);
+        TextField usernameField = new TextField();
+        usernameField.setPromptText("Enter your username");
+        usernameField.setPrefHeight(40);
+        usernameField.setStyle(table_style);
 
         Label passwordLabel = new Label("Password");
         passwordLabel.setStyle(words_styles);
@@ -97,12 +104,38 @@ public class LoginView extends VBox {
             """)
         );
 
+        Label errorLabel = new Label();
+        errorLabel.setStyle("""
+            -fx-text-fill: #D70652;
+            -fx-font-size: 12px;
+        """);
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+
+        loginButton.setOnAction(e -> {
+            try {
+                boolean isLogged = Database.logUser(usernameField.getText(), passwordField.getText());
+                System.out.println(isLogged);
+                if (isLogged) {
+                    root.setLeft(new Sidebar(root, version));
+                    root.setCenter(new DashboardView());
+                } else {
+                    errorLabel.setText("Account creation failed.");
+                    errorLabel.setVisible(true);
+                }
+            } catch (Exception f) {
+                errorLabel.setText("Could not create account. Check your details.");
+                errorLabel.setVisible(true);
+            }
+        });
+
         content.getChildren().addAll(
             title,
-            emailLabel,
-            emailField,
+            usernameLabel,
+            usernameField,
             passwordLabel,
             passwordField,
+            errorLabel,
             loginButton
         );
 
