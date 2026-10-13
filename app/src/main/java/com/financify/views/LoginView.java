@@ -115,7 +115,6 @@ public class LoginView extends VBox {
         loginButton.setOnAction(e -> {
             try {
                 boolean isLogged = Database.logUser(usernameField.getText(), passwordField.getText());
-                System.out.println(isLogged);
                 if (isLogged) {
                     root.setLeft(new Sidebar(root, version));
                     root.setCenter(new DashboardView());

@@ -22,10 +22,8 @@ public class App extends Application {
 
         Boolean userExists = Database.lookForUser();
         if (userExists) {
-            System.out.println("open login");
             root.setCenter(new LoginView(root, version));
         } else {
-            System.out.println("open signup");
             root.setCenter(new SignUpView(root, version));
         }
 
