@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -20,6 +19,8 @@ import com.financify.models.MonthlySummaryModel;
 import com.financify.models.NetWorthGrowthModel;
 import com.financify.models.NetWorthModel;
 import com.financify.models.Transactions;
+
+import com.financify.Security.PasswordUtils;
 
 public class Database {
     private static final String URL = "jdbc:sqlite:financify.db";
@@ -85,12 +86,21 @@ public class Database {
                 completionDate TEXT
             )         
         """;
+        String user_table = """
+            CREATE TABLE IF NOT EXISTS user_table (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL
+            )
+        """;
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.execute(transactionTable);
             stmt.execute(netWorthtable);
             stmt.execute(goals_section);
             stmt.execute(limit_trans);
             stmt.execute(loans);
+            stmt.execute(user_table);
         } catch (SQLException e) {
             throw new RuntimeException("Table creation failed", e);
         }
@@ -1049,7 +1059,7 @@ public class Database {
                 stmt2.executeUpdate();
             }
         } catch (Exception e) {
-            throw new RuntimeException("Can't update loan", e);
+            throw new RuntimeException("Can't delte loan", e);
         }
     }
 
@@ -1072,7 +1082,7 @@ public class Database {
                 stmt.setInt(3, id);
                 stmt.executeUpdate();
         } catch (Exception e) {
-            throw new RuntimeException("Can't change status loan", e);
+            throw new RuntimeException("Can't change loan's status", e);
         }
     }
 
@@ -1094,7 +1104,44 @@ public class Database {
 
             return result;
         } catch (Exception e) {
-            throw new RuntimeException("Can't change status loan", e);
+            throw new RuntimeException("Can't fetch networth stats", e);
+        }
+    }
+
+    //checking for exiting usrs
+    public static boolean lookForUser() {
+        String sql = """
+            Select count(*) AS users FROM user_table 
+        """; 
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();) {
+            if (rs.next()) {
+                return rs.getInt("users") > 0;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Can't look for user", e);
+        }
+        return false;
+    }
+
+    //adding a new user
+    public static boolean createUser(String username, String email, String password) {
+        String sql = """
+            INSERT INTO user_table (username, email, password) VALUES (?, ?, ?)
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(sql);) {
+            String hashedPassword = PasswordUtils.hashPassword(password);
+            stmt.setString(1, username);
+            stmt.setString(2, email);
+            stmt.setString(3, hashedPassword);
+
+            return stmt.executeUpdate() == 1;
+        } catch (Exception e) {
+            throw new RuntimeException("Can't create user", e);
         }
     }
 }
