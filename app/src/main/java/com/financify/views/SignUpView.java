@@ -159,10 +159,12 @@ public class SignUpView extends VBox {
                 } else {
                     errorLabel.setText("Account creation failed.");
                     errorLabel.setVisible(true);
+                    errorLabel.setManaged(true);
                 }
             } catch (Exception f) {
                 errorLabel.setText("Could not create account. Check your details.");
                 errorLabel.setVisible(true);
+                errorLabel.setManaged(true);
             }
         });
 
