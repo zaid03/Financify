@@ -1192,7 +1192,7 @@ public class Database {
 
             return token;
         } catch (Exception e) {
-            throw new RuntimeException("Can't generate/save token user", e);
+            throw new RuntimeException("Can't generate/save token", e);
         }
     }
 
@@ -1214,7 +1214,24 @@ public class Database {
                 return false;
             }
         } catch (Exception e) {
-            throw new RuntimeException("Can't reset token user", e);
+            throw new RuntimeException("Can't reset token", e);
         }
     } 
+
+    //save new password
+    public static void updatePassword(String password) {
+        String sql = """
+            UPDATE user_table SET password = ? WHERE id = (SELECT MAX(id) FROM user_table)        
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(sql);) {
+
+            String hashedPassword = PasswordUtils.hashPassword(password);
+            stmt.setString(1, hashedPassword);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Can't update password", e);
+        }
+    }
 }

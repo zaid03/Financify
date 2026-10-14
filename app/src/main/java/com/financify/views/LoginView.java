@@ -238,7 +238,8 @@ public class LoginView extends VBox {
                     stageReset.show();
 
                     submitPassword.setOnAction(y -> {
-
+                        Database.updatePassword(newPasswordField.getText());
+                        stageReset.close();
                     });
                 }
 
