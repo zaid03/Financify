@@ -1,5 +1,10 @@
 package com.financify.views;
 
+import java.io.File;
+import java.io.IOException;
+
+import com.financify.Database;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -7,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
 public class Sidebar extends VBox {
     public Sidebar(BorderPane  root, String version) {
@@ -66,6 +72,8 @@ public class Sidebar extends VBox {
         Button netWorthBtn = new Button("Net Worth");
         Button loansBtn = new Button("Loans");
 
+        Button backUpBtn = new Button("Back up database");
+
         dashboardBtn.setStyle(buttonStyle);
         dashboardBtn.setOnMouseEntered(e -> dashboardBtn.setStyle(hoverStyle));
         dashboardBtn.setOnMouseExited(e -> dashboardBtn.setStyle(buttonStyle));
@@ -84,6 +92,10 @@ public class Sidebar extends VBox {
         loansBtn.setStyle(buttonStyle);
         loansBtn.setOnMouseEntered(e -> loansBtn.setStyle(hoverStyle));
         loansBtn.setOnMouseExited(e -> loansBtn.setStyle(buttonStyle));
+        backUpBtn.setStyle(buttonStyle);
+        backUpBtn.setOnMouseEntered(e -> backUpBtn.setStyle(hoverStyle));
+        backUpBtn.setOnMouseExited(e -> backUpBtn.setStyle(buttonStyle));
+
 
         dashboardBtn.setMaxWidth(Double.MAX_VALUE);
         transactionsBtn.setMaxWidth(Double.MAX_VALUE);
@@ -91,40 +103,52 @@ public class Sidebar extends VBox {
         goalsBtn.setMaxWidth(Double.MAX_VALUE);
         netWorthBtn.setMaxWidth(Double.MAX_VALUE);
         loansBtn.setMaxWidth(Double.MAX_VALUE);
+        backUpBtn.setMaxWidth(Double.MAX_VALUE);
+
+        dashboardBtn.setOnAction(e -> {root.setCenter(new DashboardView());});
+        transactionsBtn.setOnAction(e -> {root.setCenter(new TransactionsView());});
+        bigPurchases.setOnAction(e -> {root.setCenter(new MajorPurchasesView());});
+        netWorthBtn.setOnAction(e -> {root.setCenter(new NetWorthView());});
+        loansBtn.setOnAction(e -> {root.setCenter(new LoansView());});
+        goalsBtn.setOnAction(e -> {root.setCenter(new GoalsView());});
+        backUpBtn.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Financify Backup");
+            fileChooser.setInitialFileName("financify-backup.db");
+
+            fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("SQLite Database", "*.db")
+            );
+
+            File selectedFile = fileChooser.showSaveDialog(getScene().getWindow());
+
+            if (selectedFile != null) {
+                try {
+                    Database.backupDatabase(selectedFile.toPath());
+
+                    System.out.println("Backup created successfully.");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
 
         VBox btns = new VBox(10);
         VBox.setVgrow(btns, Priority.ALWAYS);
         btns.setMaxHeight(Double.MAX_VALUE);
         btns.setAlignment(Pos.CENTER);
-        btns.getChildren().addAll(dashboardBtn,
-            transactionsBtn,
-            bigPurchases,
-            netWorthBtn,
-            loansBtn,
-            goalsBtn);
+        btns.getChildren().addAll(dashboardBtn, transactionsBtn, bigPurchases, netWorthBtn, loansBtn, goalsBtn);
+
+        VBox backup = new VBox(10);
+        VBox.setVgrow(backup, Priority.ALWAYS);
+        backup.setMaxHeight(Double.MAX_VALUE);
+        backup.setAlignment(Pos.BOTTOM_LEFT);
+        backup.getChildren().addAll(backUpBtn);
 
         getChildren().addAll(
             app_titles,
-            btns
+            btns,
+            backup
         );
-
-        dashboardBtn.setOnAction(e -> {
-            root.setCenter(new DashboardView());
-        });
-        transactionsBtn.setOnAction(e -> {
-            root.setCenter(new TransactionsView());
-        });
-        bigPurchases.setOnAction(e -> {
-            root.setCenter(new MajorPurchasesView());
-        });
-        netWorthBtn.setOnAction(e -> {
-            root.setCenter(new NetWorthView());
-        });
-        loansBtn.setOnAction(e -> {
-            root.setCenter(new LoansView());
-        });
-        goalsBtn.setOnAction(e -> {
-            root.setCenter(new GoalsView());
-        });
     }
 }

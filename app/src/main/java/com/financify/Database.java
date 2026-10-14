@@ -1,5 +1,10 @@
 package com.financify;
 
+import java.nio.file.Files;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -1233,5 +1238,17 @@ public class Database {
         } catch (Exception e) {
             throw new RuntimeException("Can't update password", e);
         }
+    }
+
+    //back up the db
+    public static void backupDatabase(Path backupPath) throws IOException {
+        String DB_PATH = "C:/2.me_codes/vs_code_codes/Big_projects/Financify/app/financify.db";
+        Path databasePath = Paths.get(DB_PATH);
+
+        Files.copy(
+            databasePath,
+            backupPath,
+            StandardCopyOption.REPLACE_EXISTING
+        );
     }
 }
