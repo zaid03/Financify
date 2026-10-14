@@ -38,3 +38,5 @@ target/
 
 #db
 app/financify.db
+
+/Financify/
