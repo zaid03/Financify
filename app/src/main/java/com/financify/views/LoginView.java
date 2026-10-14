@@ -5,6 +5,7 @@ import com.financify.Database;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -12,7 +13,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 public class LoginView extends VBox {
@@ -48,6 +51,13 @@ public class LoginView extends VBox {
             -fx-padding: 0 12;
             -fx-font-size: 14px;
         """;
+        String btn_styles = """
+            -fx-background-color: #156082;
+            -fx-text-fill: #ffffff;
+            -fx-font-size: 12px;
+            -fx-padding: 4 8;
+            -fx-background-radius: 4;
+        """;
 
         Label title = new Label("Login to Financify");
         title.setStyle(title_styles);
@@ -69,6 +79,34 @@ public class LoginView extends VBox {
         passwordField.setPromptText("Enter your password");
         passwordField.setPrefHeight(40);
         passwordField.setStyle(table_style);
+
+        Button resetPassword = new Button("Forgot password?");
+        resetPassword.setMaxWidth(Double.MAX_VALUE);
+        resetPassword.setStyle("""
+            -fx-background-color: transparent;
+            -fx-text-fill: #782170;
+            -fx-font-size: 13px;
+            -fx-cursor: hand;
+        """);
+
+        resetPassword.setOnMouseEntered(e ->
+            resetPassword.setStyle("""
+                -fx-background-color: transparent;
+                -fx-text-fill: #65205F;
+                -fx-font-size: 13px;
+                -fx-underline: true;
+                -fx-cursor: hand;
+            """)
+        );
+
+        resetPassword.setOnMouseExited(e ->
+            resetPassword.setStyle("""
+                -fx-background-color: transparent;
+                -fx-text-fill: #782170;
+                -fx-font-size: 13px;
+                -fx-cursor: hand;
+            """)
+        );
 
         Button loginButton = new Button("Login");
         loginButton.setPrefHeight(40);
@@ -119,13 +157,95 @@ public class LoginView extends VBox {
                     root.setLeft(new Sidebar(root, version));
                     root.setCenter(new DashboardView());
                 } else {
-                    errorLabel.setText("Account creation failed.");
+                    errorLabel.setText("Incorrect credentials");
                     errorLabel.setVisible(true);
+                    errorLabel.setManaged(true);
                 }
             } catch (Exception f) {
-                errorLabel.setText("Could not create account. Check your details.");
+                errorLabel.setText("Could not log in account. Check your details.");
                 errorLabel.setVisible(true);
+                errorLabel.setManaged(true);
             }
+        });
+
+        resetPassword.setOnAction(e -> {
+            GridPane tokenSaved = new GridPane();
+            tokenSaved.setHgap(10);
+            tokenSaved.setVgap(10);
+            tokenSaved.setPadding(new Insets(20));
+            tokenSaved.setAlignment(Pos.CENTER);
+
+            Label tokenAsk = new Label("Enter your token to reset your password");
+            TextField userSavedToken = new TextField();
+            Button submitBtn = new Button("Submit");
+            submitBtn.setStyle(btn_styles);
+            submitBtn.setAlignment(Pos.CENTER);
+            
+            Label errorLabelReset = new Label();
+            errorLabelReset.setStyle("""
+                -fx-text-fill: #D70652;
+                -fx-font-size: 12px;
+            """);
+            errorLabelReset.setVisible(false);
+            errorLabelReset.setManaged(false);
+                
+            VBox dataCombine = new VBox(10);
+            dataCombine.setAlignment(Pos.CENTER);
+            dataCombine.setSpacing(10);
+            dataCombine.getChildren().addAll(tokenAsk, userSavedToken, errorLabelReset, submitBtn);
+
+            tokenSaved.add(dataCombine, 1, 0);
+
+            Stage stage = new Stage();
+            stage.setTitle("Password reset");
+            stage.setScene(new Scene(tokenSaved, 400, 200));
+            stage.show();
+
+            submitBtn.setOnAction(f -> {
+                boolean isToken = Database.resetPassword(userSavedToken.getText());
+
+                if (isToken) {
+                    stage.close();
+                    GridPane newPassword = new GridPane();
+                    newPassword.setHgap(10);
+                    newPassword.setVgap(10);
+                    newPassword.setPadding(new Insets(20));
+                    newPassword.setAlignment(Pos.CENTER);
+
+                    Label newPasswordLabel = new Label("Password");
+                    newPasswordLabel.setStyle(words_styles);
+                    newPasswordLabel.setMaxWidth(Double.MAX_VALUE);
+
+                    PasswordField newPasswordField = new PasswordField();
+                    newPasswordField.setPromptText("Enter your password");
+                    newPasswordField.setPrefHeight(40);
+                    newPasswordField.setStyle(table_style);
+
+                    Button submitPassword = new Button("Submit");
+                    submitPassword.setMaxWidth(Double.MAX_VALUE);
+                    submitPassword.setStyle(btn_styles);
+
+                    VBox newDataCombine = new VBox(10);
+                    newDataCombine.setAlignment(Pos.CENTER);
+                    newDataCombine.setSpacing(10);
+                    newDataCombine.getChildren().addAll(newPasswordLabel, newPasswordField, submitPassword);
+
+                    newPassword.add(newDataCombine, 1, 0);
+
+                    Stage stageReset = new Stage();
+                    stageReset.setTitle("Password reset");
+                    stageReset.setScene(new Scene(newPassword, 400, 200));
+                    stageReset.show();
+
+                    submitPassword.setOnAction(y -> {
+
+                    });
+                }
+
+                errorLabelReset.setText("Token is incorrect");
+                errorLabelReset.setVisible(true);
+                errorLabelReset.setManaged(true);
+            });
         });
 
         content.getChildren().addAll(
@@ -134,6 +254,7 @@ public class LoginView extends VBox {
             usernameField,
             passwordLabel,
             passwordField,
+            resetPassword,
             errorLabel,
             loginButton
         );

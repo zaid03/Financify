@@ -2,15 +2,20 @@ package com.financify.views;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+import java.time.LocalDate;
 
 import com.financify.Database;
 
@@ -43,6 +48,13 @@ public class SignUpView extends VBox {
             -fx-border-radius: 8;
             -fx-background-radius: 8;
         """;
+        String btn_styles = """
+            -fx-background-color: #156082;
+            -fx-text-fill: #ffffff;
+            -fx-font-size: 12px;
+            -fx-padding: 4 8;
+            -fx-background-radius: 4;
+        """;
 
         Label title = new Label("Create your account to start");
         title.setStyle(title_styles);
@@ -55,15 +67,6 @@ public class SignUpView extends VBox {
         usernameField.setPromptText("Enter your Ussername");
         usernameField.setPrefHeight(40);
         usernameField.setStyle(table_style);
-
-        Label emailLabel = new Label("Email");
-        emailLabel.setStyle(words_styles);
-        emailLabel.setMaxWidth(Double.MAX_VALUE);
-
-        TextField emailField = new TextField();
-        emailField.setPromptText("Enter your email");
-        emailField.setPrefHeight(40);
-        emailField.setStyle(table_style);
 
         Label passwordLabel = new Label("Password");
         passwordLabel.setStyle(words_styles);
@@ -118,11 +121,41 @@ public class SignUpView extends VBox {
         
         signUpBtn.setOnAction(e -> {
             try {
-                boolean isCreated = Database.createUser(usernameField.getText(), emailField.getText(), passwordField.getText());
+                boolean isCreated = Database.createUser(usernameField.getText(), passwordField.getText());
                 
                 if (isCreated) {
-                    root.setLeft(new Sidebar(root, version));
-                    root.setCenter(new DashboardView());
+                    GridPane tokenSave = new GridPane();
+                    tokenSave.setHgap(10);
+                    tokenSave.setVgap(10);
+                    tokenSave.setPadding(new Insets(20));
+
+                    String token = Database.saveToken();
+                    Label tokenTitle = new Label("Save this token to retreive your password in case you lose it.");
+                    TextField tokenToSave = new TextField(token);
+                    tokenToSave.setEditable(false);
+                    tokenToSave.setFocusTraversable(true);
+                    Button nextBtn = new Button("Close and save");
+                    nextBtn.setStyle(btn_styles);
+                    nextBtn.setAlignment(Pos.CENTER);
+
+                    VBox saveData = new VBox(10);
+                    saveData.setAlignment(Pos.CENTER);
+                    saveData.setSpacing(10);
+                    saveData.getChildren().addAll(tokenTitle, tokenToSave, nextBtn);
+                    
+                    tokenSave.add(saveData, 1, 0);
+
+                    Stage stage = new Stage();
+                    stage.setTitle("Token for password reset");
+                    stage.setScene(new Scene(tokenSave, 400, 200));
+                    stage.show();
+
+                    nextBtn.setOnAction(f -> {
+                        root.setLeft(new Sidebar(root, version));
+                        root.setCenter(new DashboardView());
+                        stage.close();
+                    });
+
                 } else {
                     errorLabel.setText("Account creation failed.");
                     errorLabel.setVisible(true);
@@ -137,8 +170,6 @@ public class SignUpView extends VBox {
             title,
             username,
             usernameField,
-            emailLabel,
-            emailField,
             passwordLabel,
             passwordField,
             errorLabel,

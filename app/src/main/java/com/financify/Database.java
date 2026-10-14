@@ -90,8 +90,8 @@ public class Database {
             CREATE TABLE IF NOT EXISTS user_table (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL
+                password TEXT NOT NULL,
+                token Text
             )
         """;
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
@@ -1127,17 +1127,16 @@ public class Database {
     }
 
     //adding a new user
-    public static boolean createUser(String username, String email, String password) {
+    public static boolean createUser(String username, String password) {
         String sql = """
-            INSERT INTO user_table (username, email, password) VALUES (?, ?, ?)
+            INSERT INTO user_table (username, password) VALUES (?, ?)
         """;
 
         try (Connection conn = connect();
             PreparedStatement stmt = conn.prepareStatement(sql);) {
             String hashedPassword = PasswordUtils.hashPassword(password);
             stmt.setString(1, username);
-            stmt.setString(2, email);
-            stmt.setString(3, hashedPassword);
+            stmt.setString(2, hashedPassword);
 
             return stmt.executeUpdate() == 1;
         } catch (Exception e) {
@@ -1167,4 +1166,55 @@ public class Database {
             throw new RuntimeException("Can't log user", e);
         }
     }
+
+    //generating a token for password restoration
+    public static String generateToken() {
+        return PasswordUtils.generateRecoveryToken();
+    }
+    public static String saveToken() {
+        String sql = """
+            UPDATE user_table SET token = ? WHERE id = (SELECT MAX(id) FROM user_table)
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(sql);) {
+
+            String token = generateToken();
+            String hashedToken = PasswordUtils.hashPassword(token);
+
+            stmt.setString(1, hashedToken);
+
+            int rowsUpdated = stmt.executeUpdate();
+
+            if (rowsUpdated == 0) {
+                throw new SQLException("No user found to save the token.");
+            }
+
+            return token;
+        } catch (Exception e) {
+            throw new RuntimeException("Can't generate/save token user", e);
+        }
+    }
+
+    //password reset
+    public static boolean resetPassword(String token) {
+        String sql = """
+            SELECT token FROM user_table WHERE id = (SELECT max(id) FROM user_table)        
+        """;
+
+        try (Connection conn = connect();
+            PreparedStatement stmt = conn.prepareStatement(sql);) {
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String hashedToken = rs.getString("token");
+                    return PasswordUtils.checkPassword(token, hashedToken);
+                }
+
+                return false;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Can't reset token user", e);
+        }
+    } 
 }
