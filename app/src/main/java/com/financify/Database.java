@@ -28,7 +28,13 @@ import com.financify.models.Transactions;
 import com.financify.Security.PasswordUtils;
 
 public class Database {
-    private static final String URL = "jdbc:sqlite:financify.db";
+private static final String URL;
+
+static {
+    String appDir = System.getProperty("user.dir");
+    URL = "jdbc:sqlite:" +
+            java.nio.file.Paths.get(appDir, "financify.db").toAbsolutePath();
+}
 
     public static Connection connect() {
         try {
