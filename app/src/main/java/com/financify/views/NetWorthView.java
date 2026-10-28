@@ -1,7 +1,9 @@
 package com.financify.views;
 
 import java.time.LocalDate;
+import java.time.Year;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.financify.Database;
 import com.financify.models.NetWorthModel;
@@ -24,7 +26,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
@@ -144,182 +145,8 @@ public class NetWorthView extends VBox{
         netWorth_table.setMinHeight(300);
         VBox.setVgrow(netWorth_table, Priority.ALWAYS);
 
-        yearComboBox.setOnAction(e -> {
-            netWorth_table.getItems().setAll(Database.getSomeNetWorth(yearComboBox.getValue()));
-        });
-
-        //adding a networth functions
-        ComboBox month = new ComboBox<>();
-        for (int i = 1; i <= 12; i++) {
-            month.getItems().add(i);
-        }
-        ComboBox year = new ComboBox<>();
-        year.getItems().addAll(
-            2026,
-            2027,
-            2028,
-            2029,
-            2030,
-            2031,
-            2032,
-            2033,
-            2034,
-            2035,
-            2036,
-            2037,
-            2038,
-            2039,
-            2040,
-            2041,
-            2042,
-            2043,
-            2044,
-            2045,
-            2046
-        );
-        TextField bankBalance = new TextField();
-        add_button.setOnAction(f -> {
-            GridPane add_net_worth_grid = new GridPane();
-            add_net_worth_grid.setHgap(10);
-            add_net_worth_grid.setVgap(10);
-            add_net_worth_grid.setPadding(new Insets(20));
-
-            add_net_worth_grid.add(new Label("Month"), 0, 0);
-
-            HBox yearMonth = new HBox();
-            yearMonth.setAlignment(Pos.CENTER);
-            yearMonth.getChildren().addAll(month, year);
-            yearMonth.setSpacing(10);
-            add_net_worth_grid.add(yearMonth, 1, 0);
-
-            add_net_worth_grid.add(new Label("Bank balance"), 0, 1);
-            add_net_worth_grid.add(bankBalance, 1, 1);
-            
-            Button addTransaction = new Button("Add");
-            addTransaction.setStyle(btn_styles);
-            addTransaction.setAlignment(Pos.CENTER);
-            add_net_worth_grid.add(addTransaction, 1, 3);
-
-            Stage stage = new Stage();
-            stage.setTitle("Add Transaction");
-            stage.setScene(new Scene(add_net_worth_grid, 400, 200));
-            stage.show();
-
-            addTransaction.setOnAction(e -> {
-                String MonthToSend = String.format("%d-%02d", year.getValue(), month.getValue());
-                Database.postNetWorth (
-                    MonthToSend,
-                    Double.parseDouble(bankBalance.getText())
-                );
-
-                month.getSelectionModel().clearSelection();
-                year.getSelectionModel().clearSelection();
-                bankBalance.clear();
-                netWorth_table.getItems().setAll(Database.getNetWorth());
-                yearComboBox.getItems().setAll(Database.getAllYearsToFilter());
-                yearComboBox.setValue(LocalDate.now().getYear());
-                stage.close();
-            });
-        });
-
-        //update a transaction grid
-        ComboBox monthUpdate = new ComboBox<>();
-        for (int i = 1; i <= 12; i++) {
-            monthUpdate.getItems().add(i);
-        }
-        ComboBox yearUpdate = new ComboBox<>();
-        yearUpdate.getItems().addAll(
-            2026,
-            2027,
-            2028,
-            2029,
-            2030,
-            2031,
-            2032,
-            2033,
-            2034,
-            2035,
-            2036,
-            2037,
-            2038,
-            2039,
-            2040,
-            2041,
-            2042,
-            2043,
-            2044,
-            2045,
-            2046
-        );
-        TextField bankBalanceUpdate = new TextField();
-        netWorth_table.setOnMouseClicked(e -> {
-            if (e.getClickCount() == 2) {
-                NetWorthModel selected = netWorth_table.getSelectionModel().getSelectedItem();
-
-                if (selected != null) {
-                    monthUpdate.setValue(selected.getMonthNumber());
-                    yearUpdate.setValue(selected.getYear());
-                    bankBalanceUpdate.setText(selected.getBankBalance().toString());
-
-                    GridPane update_netWorth_grid = new GridPane();
-                    update_netWorth_grid.setHgap(10);
-                    update_netWorth_grid.setVgap(10);
-                    update_netWorth_grid.setPadding(new Insets(20));
-
-                    update_netWorth_grid.add(new Label("Month: "), 0, 0);
-                    update_netWorth_grid.add(monthUpdate, 1, 0);
-
-                    update_netWorth_grid.add(new Label("Year: "), 0,1);
-                    update_netWorth_grid.add(yearUpdate, 1, 1);
-
-                    update_netWorth_grid.add(new Label("Bank balance: "), 0, 2);
-                    update_netWorth_grid.add(bankBalanceUpdate, 1, 2);
-
-                    Button updateButton = new Button("Update");
-                    updateButton.setStyle(btn_styles);
-                    updateButton.setStyle("-fx-background-color: #1f4037; -fx-text-fill: white;");
-                    Button deleteButton = new Button("Delete");
-                    deleteButton.setStyle(btn_styles);
-                    deleteButton.setStyle("-fx-background-color: #D70652; -fx-text-fill: white;");
-                    HBox butt_update = new HBox(10);
-                    butt_update.setAlignment(Pos.CENTER);
-                    butt_update.getChildren().addAll(updateButton, deleteButton);
-                    update_netWorth_grid.add(butt_update, 1, 3);
-
-                    Stage stage = new Stage();
-                    stage.setTitle("Update Transaction");
-                    stage.setScene(new Scene(update_netWorth_grid, 400, 280));
-                    stage.show();
-
-                    updateButton.setOnAction(f -> {
-                        String MonthToSendUpdate = String.format("%d-%02d", yearUpdate.getValue(), monthUpdate.getValue());
-                        Database.updateNetWorth(
-                            selected.getId(),
-                            MonthToSendUpdate,
-                            Double.parseDouble(bankBalanceUpdate.getText())
-                        );
-
-                        netWorth_table.getItems().setAll(Database.getNetWorth());
-                        yearComboBox.getItems().setAll(Database.getAllYearsToFilter());
-                        yearComboBox.setValue(LocalDate.now().getYear());
-                        stage.close();
-                    });
-
-                    deleteButton.setOnAction(y -> {
-                        Database.deleteNetWorth(
-                            selected.getId()
-                        );
-
-                        netWorth_table.getItems().setAll(Database.getNetWorth());
-                        yearComboBox.getItems().setAll(Database.getAllYearsToFilter());
-                        yearComboBox.setValue(LocalDate.now().getYear());
-                        stage.close();
-                    });
-                }
-            }
-        });
-
-        Double[][] stats = Database.getNetWorthStats();
+        int currentYearStat = Year.now().getValue();
+        Double[][] stats = Database.getNetWorthStats(currentYearStat);
         Double[] CurrentMonth = stats[0];
         Double CurentBankBalance = CurrentMonth[0] != null ? CurrentMonth[0] : 0.0;
         Double CurrentLoan = CurrentMonth[1] != null ? CurrentMonth[1] : 0.0;
@@ -381,6 +208,168 @@ public class NetWorthView extends VBox{
         HBox netWorthStats2 = new HBox(10);
         netWorthStats2.getChildren().addAll(DebtToAssets, netWorthGrowthStat, LGAssets);
         netWorthStats2.setAlignment(Pos.CENTER);
+
+        Consumer<String> refrechTable = (year) -> {
+            netWorth_table.getItems().setAll(Database.getSomeNetWorthPeriod(Integer.parseInt(year)));
+
+            Double[][] statsUpdate = Database.getNetWorthStats(Integer.parseInt(year));
+            Double[] CurrentMonthUpdate = statsUpdate[0];
+            Double CurentBankBalanceUpdate = CurrentMonthUpdate[0] != null ? CurrentMonthUpdate[0] : 0.0;
+            Double CurrentLoanUpdate = CurrentMonthUpdate[1] != null ? CurrentMonthUpdate[1] : 0.0;
+            Double[] lastMonthUpdate = statsUpdate[1];
+            Double lastBankBalanceUpdate = lastMonthUpdate[0] != null ? lastMonthUpdate[0] : 0.0;
+            Double lastLoanUpdate = lastMonthUpdate[1] != null ? lastMonthUpdate[1] : 0.0;
+            Double curentNetWorthUpdate = CurentBankBalanceUpdate - CurrentLoanUpdate;
+            Double lastNetWorthUpdate = lastBankBalanceUpdate - lastLoanUpdate;
+            Double debtToAssetUpdate = CurentBankBalanceUpdate != 0 ? (CurrentLoanUpdate / CurentBankBalanceUpdate) * 100 : 0;
+            Double netWorthGrowthUpdate = lastNetWorthUpdate != 0 ? ((curentNetWorthUpdate - lastNetWorthUpdate) / lastNetWorthUpdate) * 100 : 0;
+            Double liabilitesGrowthUpdate = lastLoanUpdate != 0 ? ((CurrentLoanUpdate - lastLoanUpdate) / lastLoanUpdate) * 100 : 0;
+            
+            assetsTotalNumber.setText(String.format("%.2f MAD", CurentBankBalanceUpdate));        
+            liabilitiesTotalNumber.setText(String.format("%.2f MAD", CurrentLoanUpdate));        
+            netWorthTotalNumber.setText(String.format("%.2f MAD", curentNetWorthUpdate));        
+            DTATotalNumber.setText(String.format("%.2f%%", debtToAssetUpdate));        
+            NWGTotalNumber.setText(String.format("%.2f%%", netWorthGrowthUpdate));        
+            LGTextTotalNumber.setText(String.format("%.2f%%", liabilitesGrowthUpdate));        
+        };
+
+        yearComboBox.setOnAction(e -> {
+            netWorth_table.getItems().setAll(Database.getSomeNetWorthPeriod(yearComboBox.getValue()));
+            refrechTable.accept(String.valueOf(yearComboBox.getValue()));
+        });
+
+        //adding a networth functions
+        ComboBox month = new ComboBox<>();
+        for (int i = 1; i <= 12; i++) {
+            month.getItems().add(i);
+        }
+        ComboBox year = new ComboBox<>();
+        int yearSelected = Year.now().getValue();
+        int currentYear = Year.now().minusYears(1).getValue();
+        for (int y = currentYear; y <= currentYear + 20; y++) {
+            year.getItems().add(y);
+        }
+        year.setValue(yearSelected);
+        TextField bankBalance = new TextField();
+        add_button.setOnAction(f -> {
+            GridPane add_net_worth_grid = new GridPane();
+            add_net_worth_grid.setHgap(10);
+            add_net_worth_grid.setVgap(10);
+            add_net_worth_grid.setPadding(new Insets(20));
+
+            add_net_worth_grid.add(new Label("Month"), 0, 0);
+
+            HBox yearMonth = new HBox();
+            yearMonth.setAlignment(Pos.CENTER);
+            yearMonth.getChildren().addAll(month, year);
+            yearMonth.setSpacing(10);
+            add_net_worth_grid.add(yearMonth, 1, 0);
+
+            add_net_worth_grid.add(new Label("Bank balance"), 0, 1);
+            add_net_worth_grid.add(bankBalance, 1, 1);
+            
+            Button addTransaction = new Button("Add");
+            addTransaction.setStyle(btn_styles);
+            addTransaction.setAlignment(Pos.CENTER);
+            add_net_worth_grid.add(addTransaction, 1, 3);
+
+            Stage stage = new Stage();
+            stage.setTitle("Add Transaction");
+            stage.setScene(new Scene(add_net_worth_grid, 400, 200));
+            stage.show();
+
+            addTransaction.setOnAction(e -> {
+                String MonthToSend = String.format("%d-%02d", year.getValue(), month.getValue());
+                Database.postNetWorth (
+                    MonthToSend,
+                    Double.parseDouble(bankBalance.getText())
+                );
+
+                refrechTable.accept(String.valueOf(year.getValue()));
+                month.getSelectionModel().clearSelection();
+                bankBalance.clear();
+                netWorth_table.getItems().setAll(Database.getSomeNetWorthPeriod((Integer) year.getValue()));
+                stage.close();
+            });
+        });
+
+        //update a transaction grid
+        ComboBox monthUpdate = new ComboBox<>();
+        for (int i = 1; i <= 12; i++) {
+            monthUpdate.getItems().add(i);
+        }
+        ComboBox yearUpdate = new ComboBox<>();
+        int yearSelectedUpdate = Year.now().getValue();
+        int currentYearUpdate = Year.now().minusYears(1).getValue();
+        for (int y = currentYearUpdate; y <= currentYearUpdate + 20; y++) {
+            yearUpdate.getItems().add(y);
+        }
+        yearUpdate.setValue(yearSelectedUpdate);
+        TextField bankBalanceUpdate = new TextField();
+        netWorth_table.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                NetWorthModel selected = netWorth_table.getSelectionModel().getSelectedItem();
+
+                if (selected != null) {
+                    monthUpdate.setValue(selected.getMonthNumber());
+                    yearUpdate.setValue(selected.getYear());
+                    bankBalanceUpdate.setText(selected.getBankBalance().toString());
+
+                    GridPane update_netWorth_grid = new GridPane();
+                    update_netWorth_grid.setHgap(10);
+                    update_netWorth_grid.setVgap(10);
+                    update_netWorth_grid.setPadding(new Insets(20));
+
+                    update_netWorth_grid.add(new Label("Month: "), 0, 0);
+                    update_netWorth_grid.add(monthUpdate, 1, 0);
+
+                    update_netWorth_grid.add(new Label("Year: "), 0,1);
+                    update_netWorth_grid.add(yearUpdate, 1, 1);
+
+                    update_netWorth_grid.add(new Label("Bank balance: "), 0, 2);
+                    update_netWorth_grid.add(bankBalanceUpdate, 1, 2);
+
+                    Button updateButton = new Button("Update");
+                    updateButton.setStyle(btn_styles);
+                    updateButton.setStyle("-fx-background-color: #1f4037; -fx-text-fill: white;");
+                    Button deleteButton = new Button("Delete");
+                    deleteButton.setStyle(btn_styles);
+                    deleteButton.setStyle("-fx-background-color: #D70652; -fx-text-fill: white;");
+                    HBox butt_update = new HBox(10);
+                    butt_update.setAlignment(Pos.CENTER);
+                    butt_update.getChildren().addAll(updateButton, deleteButton);
+                    update_netWorth_grid.add(butt_update, 1, 3);
+
+                    Stage stage = new Stage();
+                    stage.setTitle("Update Transaction");
+                    stage.setScene(new Scene(update_netWorth_grid, 400, 280));
+                    stage.show();
+
+                    updateButton.setOnAction(f -> {
+                        String MonthToSendUpdate = String.format("%d-%02d", yearUpdate.getValue(), monthUpdate.getValue());
+                        Database.updateNetWorth(
+                            selected.getId(),
+                            MonthToSendUpdate,
+                            Double.parseDouble(bankBalanceUpdate.getText())
+                        );
+
+                        refrechTable.accept(String.valueOf(yearUpdate.getValue()));
+                        netWorth_table.getItems().setAll(Database.getSomeNetWorthPeriod((Integer) yearUpdate.getValue()));
+                        stage.close();
+                    });
+
+                    deleteButton.setOnAction(y -> {
+                        Database.deleteNetWorth(
+                            selected.getId()
+                        );
+
+                        refrechTable.accept(String.valueOf(yearComboBox.getValue()));
+                        netWorth_table.getItems().setAll(Database.getSomeNetWorthPeriod((Integer) yearUpdate.getValue()));
+                        stage.close();
+                    });
+                }
+            }
+        });
 
         content.getChildren().addAll(
             title,

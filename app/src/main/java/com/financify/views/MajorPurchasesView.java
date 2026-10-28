@@ -1,5 +1,6 @@
 package com.financify.views;
 
+import java.time.Year;
 import java.util.List;
 
 import com.financify.Database;
@@ -16,7 +17,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 
 public class MajorPurchasesView extends VBox{
@@ -102,6 +102,16 @@ public class MajorPurchasesView extends VBox{
         amountNumber.setStyle(money_styles);
         amount.getChildren().addAll(amountText, amountNumber);
 
+        int currentYear = Year.now().getValue();
+        double total_spent_year = Database.getTotalSpentMajorPurchasesPeriod(currentYear, null);
+        String total_spent_year_string = String.valueOf(total_spent);
+        TextFlow amount_year = new TextFlow();
+        Text amountText_year = new Text("Amount spent this year : ");
+        Text amountNumber_year = new Text(total_spent_year_string + " MAD");
+        amountText_year.setStyle(words_styles);
+        amountNumber_year.setStyle(money_styles);
+        amount_year.getChildren().addAll(amountText_year, amountNumber_year);
+
         double all_total_spent = Database.getAllTotalSpentMajorPurchases();
         String all_total_spent_string = String.valueOf(all_total_spent);
         TextFlow allAmount = new TextFlow();
@@ -113,7 +123,7 @@ public class MajorPurchasesView extends VBox{
 
         HBox stats = new HBox(10);
         stats.setAlignment(Pos.CENTER);
-        stats.getChildren().addAll(amount, allAmount);
+        stats.getChildren().addAll(amount, amount_year, allAmount);
 
         content.getChildren().addAll(
             title,

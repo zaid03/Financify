@@ -11,12 +11,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 public class LoginView extends VBox {
     private final BorderPane root;
@@ -160,6 +160,7 @@ public class LoginView extends VBox {
                     errorLabel.setText("Incorrect credentials");
                     errorLabel.setVisible(true);
                     errorLabel.setManaged(true);
+                    
                 }
             } catch (Exception f) {
                 errorLabel.setText("Could not log in account. Check your details.");
@@ -167,6 +168,8 @@ public class LoginView extends VBox {
                 errorLabel.setManaged(true);
             }
         });
+
+        passwordField.setOnAction(event -> loginButton.fire());
 
         resetPassword.setOnAction(e -> {
             GridPane tokenSaved = new GridPane();

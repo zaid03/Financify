@@ -1,5 +1,6 @@
 package com.financify.views;
 
+import java.time.Year;
 import java.util.List;
 
 import com.financify.Database;
@@ -228,7 +229,8 @@ public class DashboardView extends VBox{
         Label growth_title = new Label("Net worth breakdown");
         growth_title.setStyle(words_styles); 
 
-        Double[][] stats = Database.getNetWorthStats();
+        int currentYearStat = Year.now().getValue();
+        Double[][] stats = Database.getNetWorthStats(currentYearStat);
         Double[] CurrentMonth = stats[0];
         Double CurentBankBalance = CurrentMonth[0] != null ? CurrentMonth[0] : 0.0;
         Double CurrentLoan = CurrentMonth[1] != null ? CurrentMonth[1] : 0.0;

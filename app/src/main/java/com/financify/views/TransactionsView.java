@@ -162,7 +162,7 @@ public class TransactionsView extends VBox{
             transaction_table.getItems().setAll(
                 Database.getSomeTransactions(yearComboBox.getValue(), monthComboBox.getValue())
             );
-            double total_spent_update = Database.getTotalSpent();
+            double total_spent_update = Database.getTotalSpentPeriod(yearComboBox.getValue(), monthComboBox.getValue());
             String total_spent_update_string = String.valueOf(total_spent_update);
             amountNumber.setText(total_spent_update_string + " MAD");
 

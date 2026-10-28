@@ -1,7 +1,7 @@
 package com.financify;
 
-import java.nio.file.Files;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -16,6 +16,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.financify.Security.PasswordUtils;
 import com.financify.models.ExpenseCategoryModel;
 import com.financify.models.GoalSummaryModel;
 import com.financify.models.GoalsSection;
@@ -24,8 +25,6 @@ import com.financify.models.MonthlySummaryModel;
 import com.financify.models.NetWorthGrowthModel;
 import com.financify.models.NetWorthModel;
 import com.financify.models.Transactions;
-
-import com.financify.Security.PasswordUtils;
 
 public class Database {
 private static final String URL;
@@ -126,10 +125,10 @@ static {
     //to fetch total spent for a months transactions
     public static Double getTotalSpent() {
         LocalDate now = LocalDate.now();
-        return getTotalSpent(now.getYear(), now.getMonthValue());
+        return getTotalSpentPeriod(now.getYear(), now.getMonthValue());
     }
 
-    public static Double getTotalSpent(Integer year, Integer month) {
+    public static Double getTotalSpentPeriod(Integer year, Integer month) {
         LocalDate firstDay = LocalDate.of(year, month, 1);
         LocalDate firstDayNextMonth = firstDay.plusMonths(1);
 
@@ -187,6 +186,8 @@ static {
             SELECT *
             FROM transactions
             WHERE date >= ? AND date < ?
+            ORDER BY date
+            ASC
         """;
 
         List<Transactions> transactions = new ArrayList<>();
@@ -277,10 +278,10 @@ static {
     //selecting and filtering in the net worth
     public static List<NetWorthModel> getNetWorth() {
         LocalDate nowYear = LocalDate.now();
-        return getSomeNetWorth(nowYear.getYear());
+        return getSomeNetWorthPeriod(nowYear.getYear());
     }
 
-    public static List<NetWorthModel> getSomeNetWorth(Integer year) {
+    public static List<NetWorthModel> getSomeNetWorthPeriod(Integer year) {
 
         String fetchNetWorth = """
             SELECT *
@@ -789,6 +790,8 @@ static {
             SELECT *
             FROM transactions
             WHERE is_big_purchase = 1
+            ORDER BY date
+            ASC
         """;
 
         List<Transactions> transactions = new ArrayList<>();
@@ -819,12 +822,9 @@ static {
     //selecting total amount spent on major expenses for a period and for all time
     public static Double getTotalSpentMajorPurchases() {
         LocalDate now = LocalDate.now();
-        return getTotalSpentMajorPurchases(now.getYear(), now.getMonthValue());
+        return getTotalSpentMajorPurchasesPeriod(now.getYear(), now.getMonthValue());
     }
-    public static Double getTotalSpentMajorPurchases(Integer year, Integer month) {
-        LocalDate firstDay = LocalDate.of(year, month, 1);
-        LocalDate firstDayNextMonth = firstDay.plusMonths(1);
-
+    public static Double getTotalSpentMajorPurchasesPeriod(Integer year, Integer month) {
         String fetchTransactions = """
             SELECT SUM(amount) AS total_spent
             FROM transactions
@@ -834,10 +834,17 @@ static {
 
         try (Connection conn = connect();
             PreparedStatement stmt = conn.prepareStatement(fetchTransactions)) {
-
-            stmt.setString(1, firstDay.toString());
-            stmt.setString(2, firstDayNextMonth.toString());
-
+            if (month == null) {
+                LocalDate firstMonth = LocalDate.of(year, 1, 1);
+                LocalDate lastMonthOfTheYear = LocalDate.of(year, 12, 31);
+                stmt.setString(1, firstMonth.toString());
+                stmt.setString(2, lastMonthOfTheYear.toString());
+            } else {
+                LocalDate firstDay = LocalDate.of(year, month, 1);
+                LocalDate firstDayNextMonth = firstDay.plusMonths(1);
+                stmt.setString(1, firstDay.toString());
+                stmt.setString(2, firstDayNextMonth.toString());
+            }
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -1097,23 +1104,30 @@ static {
         }
     }
 
-    public static Double[][] getNetWorthStats() {
+    public static Double[][] getNetWorthStats(Integer year) {
         String sql = """
-            SELECT bank_balance, loans FROM net_worth ORDER BY month DESC LIMIT 2        
+            SELECT bank_balance, loans 
+            FROM net_worth 
+            WHERE substr(month, 1, 4) = ?
+            ORDER BY month DESC LIMIT 2        
         """;
         
         try (Connection conn = connect();
             PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();) {    
-            Double[][] result = new Double[2][2];
-            int i = 0;
-            while (rs.next()) {
-                result[i][0] = rs.getDouble("bank_balance");
-                result[i][1] = rs.getDouble("loans");
-                i++;
-            }
+            ) {    
+                stmt.setString(1, year.toString());
+                ResultSet rs = stmt.executeQuery();
 
-            return result;
+                Double[][] result = new Double[2][2];
+                int i = 0;
+
+                while (rs.next()) {
+                    result[i][0] = rs.getDouble("bank_balance");
+                    result[i][1] = rs.getDouble("loans");
+                    i++;
+                }
+
+                return result;
         } catch (Exception e) {
             throw new RuntimeException("Can't fetch networth stats", e);
         }
