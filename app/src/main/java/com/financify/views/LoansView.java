@@ -311,27 +311,33 @@ public class LoansView extends VBox {
             addGoal.setOnAction(f -> {
                 String startDate = start_date.getValue().toString();
                 String deadlineToSend = due_date.getValue().toString();
-                Database.addLoan(
-                    name_add.getText(),
-                    descr_add.getText(),
-                    source_add.getText(),
-                    Double.parseDouble(amount_add.getText()),
-                    Double.parseDouble(remaining_add.getText()),
-                    Double.parseDouble(moothly_add.getText()),
-                    startDate,
-                    deadlineToSend
-                );
-
-                stage.hide();
-                name_add.clear();
-                descr_add.clear();
-                source_add.clear();
-                amount_add.clear();
-                remaining_add.clear();
-                moothly_add.clear();
-                start_date.setValue(null);
-                due_date.setValue(null);
-                refreshContent.run();
+                Double  amountToAdd = Double.parseDouble(amount_add.getText());
+                Double remainingToAdd = Double.parseDouble(remaining_add.getText());
+                Double monthlyToAdd = Double.parseDouble(moothly_add.getText());
+                if (remainingToAdd < amountToAdd) {
+                    if (monthlyToAdd < remainingToAdd) {
+                        Database.addLoan(
+                            name_add.getText(),
+                            descr_add.getText(),
+                            source_add.getText(),
+                            amountToAdd,
+                            remainingToAdd,
+                            monthlyToAdd,
+                            startDate,
+                            deadlineToSend
+                        );
+                        stage.hide();
+                        name_add.clear();
+                        descr_add.clear();
+                        source_add.clear();
+                        amount_add.clear();
+                        remaining_add.clear();
+                        moothly_add.clear();
+                        start_date.setValue(null);
+                        due_date.setValue(null);
+                        refreshContent.run();
+                    }
+                }
             });
         });
 
@@ -410,29 +416,38 @@ public class LoansView extends VBox {
                     updateButton.setOnAction(f -> {
                         String startDate = start_date_update.getValue().toString();
                         String deadlineToSend = due_date_update.getValue().toString();
-                        Database.updateLoan(
-                            selected.getId(),
-                            name_add_update.getText(),
-                            descr_add_update.getText(),
-                            source_add_update.getText(),
-                            Double.parseDouble(amount_add_update.getText()),
-                            Double.parseDouble(remaining_add_update.getText()),
-                            Double.parseDouble(moothly_add_update.getText()),
-                            startDate,
-                            deadlineToSend
-                        );
 
-                        name_add_update.clear();
-                        descr_add_update.clear();
-                        source_add_update.clear();
-                        amount_add_update.clear();
-                        remaining_add_update.clear();
-                        moothly_add_update.clear();
-                        start_date.setValue(null);
-                        due_date.setValue(null);
-                        refreshContent.run();
-                        stage.hide();
-                        refreshContent.run();
+                        Double amountToUpdate = Double.parseDouble(amount_add_update.getText());
+                        Double remainingToUpdate = Double.parseDouble(remaining_add_update.getText());
+                        Double monthlyToUpdate = Double.parseDouble(moothly_add_update.getText());
+
+                        if (remainingToUpdate < amountToUpdate) {
+                            if (monthlyToUpdate < remainingToUpdate) {
+                                Database.updateLoan(
+                                    selected.getId(),
+                                    name_add_update.getText(),
+                                    descr_add_update.getText(),
+                                    source_add_update.getText(),
+                                    amountToUpdate,
+                                    remainingToUpdate,
+                                    monthlyToUpdate,
+                                    startDate,
+                                    deadlineToSend
+                                );
+
+                                name_add_update.clear();
+                                descr_add_update.clear();
+                                source_add_update.clear();
+                                amount_add_update.clear();
+                                remaining_add_update.clear();
+                                moothly_add_update.clear();
+                                start_date.setValue(null);
+                                due_date.setValue(null);
+                                refreshContent.run();
+                                stage.hide();
+                                refreshContent.run();
+                            }
+                        }
                     });
 
                     CompleteButton.setOnAction(a -> {
