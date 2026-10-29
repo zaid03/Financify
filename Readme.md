@@ -1,54 +1,68 @@
 # Financify
 
-**Financify** is a desktop personal finance management application built with **Java 21, JavaFX, and SQLite**. It helps users manage transactions, track major expenses, monitor net worth, manage loans, and set savings goals through a clean and intuitive interface.
+**Financify** is a desktop personal finance management application built with **Java 21, JavaFX, and SQLite**. It helps users manage transactions, track major expenses, monitor net worth, manage loans, and set savings goals through a desktop interface.
 
 This project was developed to strengthen my Java and desktop application development skills while building a practical finance management tool for personal use.
 
 ## Features
 
-### 📊 Dashboard
-- Overview of the current financial situation
+### Dashboard
+- Overview of the current financial situation in the dashboard
 - Monthly income, expenses, and cash flow
 - Savings rate calculation
 - Expense breakdown by category
-- Monthly financial summaries for the past 6 months
-- Net worth growth overview for the past 6 months
+- Monthly financial summaries for the past six months
+- Net worth growth overview for the past six months
 
-### 💳 Transactions
+### Transactions
 - Add, edit, and delete transactions
 - Track income and expenses
 - Organize transactions by category and description
 - Filter transactions by month and year
 - Mark and manage major expenses separately
-- Highlight major expenses in the transaction history
+- Highlight major expenses in transaction history
 
-### 💰 Net Worth
+### Net Worth
 - Track monthly bank balances
 - Manage loans and outstanding balances
-- Calculate net worth based on financial records
+- Calculate net worth from financial records
 
-### 🎯 Savings Goals
+### Savings Goals
 - Create, update, and delete savings goals
-- Track current progress toward each goal
+- Track progress toward each goal
 - Calculate remaining amounts
 - View overall savings statistics
 - Set deadlines and track goal completion
 
-### 🔐 Account Management
+### Account Management
 - Create a user account
-- Log in with password verification
+- Authenticate users with password verification
 - Recover accounts using a recovery token
 - Reset account passwords
 - Require authentication when launching the application
 
-### 💾 Database Backup
+### Database Backup
 - Create manual backups of the SQLite database
-- Choose where to save the backup file
+- Choose where to save backup files
 
-### 📈 Financial Management
+### Financial Management
 - Set and monitor a monthly spending limit
 - Separate regular spending from major expenses
 - Monitor income, expenses, savings, and cash flow
+
+## Download the Application
+
+The packaged Windows version is available in the [Financify v1.5.0 Release](https://github.com/zaid03/Financify/releases/tag/v1.5.0).
+
+1. Open the latest release.
+2. Download the `Financify-v1.5.0-Windows-x64.zip` asset.
+3. Extract the ZIP archive.
+4. Open the extracted `Financify` folder.
+5. Launch `Financify.exe`.
+
+The portable application includes its Java runtime and supporting files. A separate Java installation is not required.
+
+**Important:** Keep the entire extracted folder together. Do not move or copy the executable, you may send it to your dekstop as a shortcut.
 
 ## Technologies
 
@@ -56,9 +70,9 @@ This project was developed to strengthen my Java and desktop application develop
 - JavaFX
 - SQLite
 - SQLite JDBC
-- Gradle
 - JDBC
-- Java modules
+- Gradle
+- Java Platform Module System
 - `jlink` and `jpackage` for packaging
 
 ## Project Structure
@@ -66,16 +80,19 @@ This project was developed to strengthen my Java and desktop application develop
 ```text
 Financify/
 ├── app/
-│   ├── src/
-│   │   └── main/
-│   │       ├── java/
-│   │       │   └── com.financify/
-│   │       │       ├── App.java
-│   │       │       ├── Database.java
-│   │       │       ├── models/
-│   │       │       └── views/
-│   │       └── resources/
-│   └── build/
+│   └── src/
+│       └── main/
+│           ├── java/
+│           │   └── com.financify/
+│           │       ├── App.java
+│           │       ├── Database.java
+│           │       ├── models/
+│           │       └── views/
+│           └── resources/
+├── Financify/          # Packaged Windows application
+│   ├── Financify.exe
+│   ├── app/
+│   └── runtime/
 ├── gradlew
 ├── gradlew.bat
 ├── build.gradle
@@ -84,80 +101,43 @@ Financify/
 
 *The structure above is simplified and may not include every source file.*
 
-## Running the Project
+## Running from Source
 
 ### Requirements
-- Java Development Kit (JDK) 21
-- Git (to clone the repository)
 
-Gradle is included through the Gradle Wrapper, so a separate Gradle installation is not required.
+- JDK 21
+- Git
 
-### Clone the Repository
+Gradle is provided through the Gradle Wrapper, so a separate Gradle installation is not required.
 
-```bash
-git clone https://github.com/yourusername/Financify.git
-cd Financify
-```
-
-Replace `yourusername` with the actual GitHub username or repository URL.
 
 ### Run the Application
 
-On Windows:
+After clonning the repository
 
 ```powershell
-.\gradlew.bat run
-```
-
-On Linux or macOS:
-
-```bash
-./gradlew run
+.\gradlew run
 ```
 
 ### Build the Project
 
-```bash
-./gradlew build
-```
-
-### Generate the Portable Application
+On Windows:
 
 ```powershell
-.\gradlew jpackageImage
+.\gradlew.bat build
 ```
 
-The generated application image is available at:
+### Generate the Windows Application Image
+
+```powershell
+./gradlew jpackageImage
+```
+
+The generated application image is available under:
 
 ```text
 app/build/jpackage/Financify/
 ```
-
-### Using the Portable Application
-
-A prebuilt portable version of Financify is included in the repository.
-
-**Location in the project:**
-
-```text
-Financify/
-├── app/
-├── finanicify/
-│   ├── Financify.exe
-│   ├── app/
-│   └── runtime/
-└── ...
-```
-
-To use it:
-
-1. Copy the entire `finanicify` folder to your preferred location.
-2. Open the folder.
-3. Run `Financify.exe`.
-
-**Important:** Copy the entire folder, including its subfolders. Do not copy only the executable, as it requires the bundled runtime and supporting files.
-
-Java does not need to be installed separately to run this portable version.
 
 ## Database
 
@@ -176,11 +156,11 @@ The database schema is initialized automatically when the application starts and
 
 Financial records and dashboard statistics are retrieved using SQL queries and aggregation.
 
-**Data note:** Keep regular backups of the database. The database file must remain accessible and writable by the application.
+**Data note:** Keep regular backups of your database. Ensure the database file remains accessible and writable by the application.
 
 ## Purpose
 
-Financify was created as a personal project and portfolio application to improve practical skills in:
+Financify was created as a personal project and portfolio application to develop practical skills in:
 
 - Object-oriented programming
 - Java and JavaFX development
@@ -200,4 +180,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 **Zaid Terguy**
 
-Made with Java.
+Built with Java.
