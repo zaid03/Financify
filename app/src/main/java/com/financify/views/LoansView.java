@@ -7,6 +7,7 @@ import java.util.List;
 import com.financify.Database;
 import com.financify.models.Loans;
 
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -23,6 +24,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -167,7 +169,8 @@ public class LoansView extends VBox {
         );
         List<Loans> uncompletedLoansData = Database.getLoans();
         loans_table.getItems().addAll(uncompletedLoansData);
-        loans_table.setMaxHeight(200);
+        loans_table.setMinHeight(200);
+        loans_table.setMaxHeight(Double.MAX_VALUE);
         loans_table.setStyle(table_style);
         loans_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
@@ -239,7 +242,8 @@ public class LoansView extends VBox {
         );
         List<Loans> completedLoans = Database.getCompletedLoans();
         completedLoans_table.getItems().addAll(completedLoans);
-        completedLoans_table.setMaxHeight(200);
+        completedLoans_table.setMinHeight(200);
+        completedLoans_table.setMaxHeight(Double.MAX_VALUE);
         completedLoans_table.setStyle(table_style);
         completedLoans_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
@@ -594,6 +598,14 @@ public class LoansView extends VBox {
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        var viewportHeight = Bindings.createDoubleBinding(
+            () -> scrollPane.getViewportBounds().getHeight(),
+            scrollPane.viewportBoundsProperty()
+        );
+        var tableHeight = Bindings.max(200, viewportHeight.subtract(250).divide(2));
+        loans_table.prefHeightProperty().bind(tableHeight);
+        completedLoans_table.prefHeightProperty().bind(tableHeight);
         getChildren().add(scrollPane);
     }
 }

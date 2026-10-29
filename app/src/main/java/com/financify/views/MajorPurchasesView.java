@@ -6,6 +6,7 @@ import java.util.List;
 import com.financify.Database;
 import com.financify.models.Transactions;
 
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -15,6 +16,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -90,6 +92,7 @@ public class MajorPurchasesView extends VBox{
         List<Transactions> transactions = Database.getMajorPurchases();
         transaction_table.getItems().addAll(transactions);
         transaction_table.setMinHeight(500);
+        transaction_table.setMaxHeight(Double.MAX_VALUE);
         transaction_table.setStyle(table_style);
         transaction_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
@@ -133,6 +136,14 @@ public class MajorPurchasesView extends VBox{
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        transaction_table.prefHeightProperty().bind(Bindings.max(
+            500,
+            Bindings.createDoubleBinding(
+                () -> scrollPane.getViewportBounds().getHeight() - 180,
+                scrollPane.viewportBoundsProperty()
+            )
+        ));
         getChildren().add(scrollPane);
     }
 }

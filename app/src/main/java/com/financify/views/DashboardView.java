@@ -10,6 +10,7 @@ import com.financify.models.MonthlySummaryModel;
 import com.financify.models.NetWorthGrowthModel;
 import com.financify.models.NetWorthModel;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -22,6 +23,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 public class DashboardView extends VBox{
@@ -293,6 +295,21 @@ public class DashboardView extends VBox{
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        var viewportHeight = Bindings.createDoubleBinding(
+            () -> scrollPane.getViewportBounds().getHeight(),
+            scrollPane.viewportBoundsProperty()
+        );
+        var topTableHeight = Bindings.max(245, viewportHeight.multiply(0.32));
+        currentSituationTable.setMaxHeight(Double.MAX_VALUE);
+        breakdown_table.setMaxHeight(Double.MAX_VALUE);
+        netWorthGrowrthTable.setMaxHeight(Double.MAX_VALUE);
+        currentSituationTable.prefHeightProperty().bind(topTableHeight);
+        breakdown_table.prefHeightProperty().bind(topTableHeight);
+        netWorthGrowrthTable.prefHeightProperty().bind(topTableHeight);
+        monthlySummaryTable.setMaxHeight(Double.MAX_VALUE);
+        monthlySummaryTable.prefHeightProperty().bind(Bindings.max(220, viewportHeight.multiply(0.28)));
         getChildren().add(scrollPane);
     }
 }

@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import com.financify.Database;
 import com.financify.models.NetWorthModel;
 
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -141,9 +142,8 @@ public class NetWorthView extends VBox{
 
         List<NetWorthModel> netWorth = Database.getNetWorth();
         netWorth_table.getItems().addAll(netWorth);
-        netWorth_table.setPrefHeight(450);
         netWorth_table.setMinHeight(300);
-        VBox.setVgrow(netWorth_table, Priority.ALWAYS);
+        netWorth_table.setMaxHeight(Double.MAX_VALUE);
 
         int currentYearStat = Year.now().getValue();
         Double[][] stats = Database.getNetWorthStats(currentYearStat);
@@ -381,6 +381,14 @@ public class NetWorthView extends VBox{
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        netWorth_table.prefHeightProperty().bind(Bindings.max(
+            300,
+            Bindings.createDoubleBinding(
+                () -> scrollPane.getViewportBounds().getHeight() - 260,
+                scrollPane.viewportBoundsProperty()
+            )
+        ));
         getChildren().add(scrollPane);
     }
 }

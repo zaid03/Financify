@@ -8,6 +8,7 @@ import com.financify.Database;
 import com.financify.models.GoalSummaryModel;
 import com.financify.models.GoalsSection;
 
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -23,6 +24,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -146,7 +148,8 @@ public class GoalsView extends VBox{
 
         List<GoalsSection> goals = Database.getGoals();
         goals_table.getItems().addAll(goals);
-        goals_table.setMaxHeight(200);
+        goals_table.setMinHeight(200);
+        goals_table.setMaxHeight(Double.MAX_VALUE);
         String table_style = """
             -fx-background-color: white;
             -fx-border-color: #D1D5DB;
@@ -249,7 +252,8 @@ public class GoalsView extends VBox{
 
         List<GoalsSection> Data = Database.getUncompletedGoals();
         uncompletedGoals.getItems().addAll(Data);
-        uncompletedGoals.setMaxHeight(200);
+        uncompletedGoals.setMinHeight(200);
+        uncompletedGoals.setMaxHeight(Double.MAX_VALUE);
         uncompletedGoals.setStyle(table_style);
         uncompletedGoals.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
@@ -505,6 +509,14 @@ public class GoalsView extends VBox{
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        var viewportHeight = Bindings.createDoubleBinding(
+            () -> scrollPane.getViewportBounds().getHeight(),
+            scrollPane.viewportBoundsProperty()
+        );
+        var tableHeight = Bindings.max(200, viewportHeight.subtract(260).divide(2));
+        goals_table.prefHeightProperty().bind(tableHeight);
+        uncompletedGoals.prefHeightProperty().bind(tableHeight);
         getChildren().add(scrollPane);
     }
 

@@ -6,6 +6,7 @@ import java.util.List;
 import com.financify.Database;
 import com.financify.models.Transactions;
 
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -24,6 +25,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -126,6 +128,7 @@ public class TransactionsView extends VBox{
         List<Transactions> transactions = Database.getAllTransactions();
         transaction_table.getItems().addAll(transactions);
         transaction_table.setMinHeight(500);
+        transaction_table.setMaxHeight(Double.MAX_VALUE);
 
         String table_style = """
             -fx-background-color: white;
@@ -488,6 +491,14 @@ public class TransactionsView extends VBox{
         );
         ScrollPane scrollPane = new ScrollPane(content);
         scrollPane.setFitToWidth(true);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        transaction_table.prefHeightProperty().bind(Bindings.max(
+            500,
+            Bindings.createDoubleBinding(
+                () -> scrollPane.getViewportBounds().getHeight() - 220,
+                scrollPane.viewportBoundsProperty()
+            )
+        ));
         getChildren().add(scrollPane);
     }
 }
