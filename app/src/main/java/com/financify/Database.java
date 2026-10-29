@@ -29,11 +29,10 @@ import com.financify.models.Transactions;
 public class Database {
 private static final String URL;
 
-static {
-    String appDir = System.getProperty("user.dir");
-    URL = "jdbc:sqlite:" +
-            java.nio.file.Paths.get(appDir, "financify.db").toAbsolutePath();
-}
+    static {
+        String appDir = System.getProperty("user.dir");
+        URL = "jdbc:sqlite:" + java.nio.file.Paths.get(appDir, "financify.db").toAbsolutePath();
+    }
 
     public static Connection connect() {
         try {
@@ -1262,8 +1261,9 @@ static {
 
     //back up the db
     public static void backupDatabase(Path backupPath) throws IOException {
-        String DB_PATH = "C:/2.me_codes/vs_code_codes/Big_projects/Financify/app/financify.db";
-        Path databasePath = Paths.get(DB_PATH);
+        Path databasePath = Paths.get(
+            URL.replace("jdbc:sqlite:", "")
+        );
 
         Files.copy(
             databasePath,
